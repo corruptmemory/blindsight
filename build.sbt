@@ -12,11 +12,15 @@ ThisBuild / startYear := Some(2020)
 ThisBuild / licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / headerLicense := None
 
+// sbt ghpagesPushSite to publish to ghpages
 // previewAuto to see the site in action.
 // https://www.scala-sbt.org/sbt-site/getting-started.html#previewing-the-site
 lazy val docs = (project in file("docs"))
-  .enablePlugins(ParadoxPlugin, ParadoxSitePlugin)
+  .enablePlugins(ParadoxPlugin, ParadoxSitePlugin, GhpagesPlugin)
   .settings(
+    scmInfo := Some(ScmInfo(url("https://github.com/tersesystems/blindsight"), "scm:git:git@github.com:tersesystems/blindsight.git")),
+    git.remoteRepo := scmInfo.value.get.connection.replace("scm:git:", ""),
+
     paradoxTheme := Some(builtinParadoxTheme("generic")),
     mappings in makeSite ++= Seq(
       file("LICENSE") -> "LICENSE"
