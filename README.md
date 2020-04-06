@@ -229,6 +229,8 @@ and in JSON:
 
 Because of the way that Blindsight is constructed, it is very easy to extend and adapt Blindsight to your needs.  
 
+### Entry / Exit Trace Logger
+
 For example, here's a logger extended with entry and exit methods:
 
 ```scala
@@ -318,96 +320,60 @@ JSON:
 {"id":"FgEdhil1md06O0Qbm7EAAA","relative_ns":88443600,"tse_ms":1586128419048,"start_ms":null,"@timestamp":"2020-04-05T23:13:39.048Z","@version":"1","message":"example.flow.FlowMain.main result exit: result = 3","logger_name":"example.flow.FlowMain$","thread_name":"main","level":"TRACE","level_value":5000,"tags":["Set(EXIT)","EXIT"]}
 ```
 
-And here's a conditional fluent logger:
+### Conditional Fluent Logger
+
+That's a fairly simple example, so let's do something a bit more complex.  Here's a conditional fluent logger:
 
 ```scala
+import com.tersesystems.blindsight.ToStatement
+import com.tersesystems.blindsight.fluent.{SLF4JFluentLogger, SLF4JFluentLoggerMethod}
+import com.tersesystems.blindsight.slf4j.{LoggerAPI, LoggerPredicate}
+import org.slf4j.event.Level
+import sourcecode.{Enclosing, File, Line}
 
-class ConditionalLogger(test: => Boolean, protected val logger: Logger with ParameterListMixin)
-    extends LoggerAPI[LoggerPredicate, ConditionalLoggerMethod] {
-  override type Self      = ConditionalLogger
-  override type Method    = ConditionalLoggerMethod
-  override type Predicate = logger.Predicate
+class ConditionalFluentLogger(test: => Boolean, logger: SLF4JFluentLogger)
+    extends LoggerAPI[LoggerPredicate, ConditionalFluentLoggerMethod] {
+  override type Predicate = LoggerPredicate
+  override type Method    = ConditionalFluentLoggerMethod
+  override type Self      = ConditionalFluentLogger
 
-  def onCondition(test2: => Boolean): Self = new ConditionalLogger(test && test2, logger)
+  def onCondition(test2: Boolean): Self = new ConditionalFluentLogger(test && test2, logger)
 
   override def isTraceEnabled: Predicate = logger.isTraceEnabled
-  override def trace: Method             = new ConditionalLoggerMethod(Level.TRACE, test, logger)
+  override def trace: Method             = new ConditionalFluentLoggerMethod(Level.TRACE, test, logger)
 
   override def isDebugEnabled: Predicate = logger.isDebugEnabled
-  override def debug: Method             = new ConditionalLoggerMethod(Level.DEBUG, test, logger)
+  override def debug: Method             = new ConditionalFluentLoggerMethod(Level.DEBUG, test, logger)
 
   override def isInfoEnabled: Predicate = logger.isInfoEnabled
-  override def info: Method             = new ConditionalLoggerMethod(Level.INFO, test, logger)
+  override def info: Method             = new ConditionalFluentLoggerMethod(Level.INFO, test, logger)
 
   override def isWarnEnabled: Predicate = logger.isWarnEnabled
-  override def warn: Method             = new ConditionalLoggerMethod(Level.WARN, test, logger)
+  override def warn: Method             = new ConditionalFluentLoggerMethod(Level.WARN, test, logger)
 
   override def isErrorEnabled: Predicate = logger.isErrorEnabled
-  override def error: Method             = new ConditionalLoggerMethod(Level.ERROR, test, logger)
+  override def error: Method             = new ConditionalFluentLoggerMethod(Level.ERROR, test, logger)
 }
 
-class ConditionalLoggerMethod(val level: Level,
-                              test: => Boolean,
-                              logger: Logger with ParameterListMixin)
-    extends LoggerMethod {
+class ConditionalFluentLoggerMethod(level: Level, test: => Boolean, logger: SLF4JFluentLogger)
+    extends SLF4JFluentLoggerMethod(level, logger) {
 
-  override def apply(message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
+  override def apply[T: ToStatement](
+      instance: => T
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     if (test) {
-      logger.parameterList(level).message(message)
+      val statement = implicitly[ToStatement[T]].toStatement(instance)
+      logger.parameterList(level).executeStatement(statement)
     }
-
-  override def apply(format: String,
-                     arg: Any)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).messageArg1(format, arg)
-    }
-
-  override def apply(format: String, arg1: Any, arg2: Any)(implicit line: Line,
-                                                           file: File,
-                                                           enclosing: Enclosing): Unit = if (test) {
-    logger.parameterList(level).messageArg1Arg2(format, arg1, arg2)
   }
-
-  override def apply(format: String,
-                     args: Any*)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).messageArgs(format, args)
-    }
-
-  override def apply(marker: Marker,
-                     message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).markerMessage(marker, message)
-    }
-
-  override def apply(marker: Marker, format: String, arg: Any)(implicit line: Line,
-                                                               file: File,
-                                                               enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).markerMessageArg1(marker, format, arg)
-    }
-
-  override def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing): Unit = if (test) {
-    logger.parameterList(level).markerMessageArg1Arg2(marker, format, arg1, arg2)
-  }
-
-  override def apply(marker: Marker, format: String, args: Any*)(implicit line: Line,
-                                                                 file: File,
-                                                                 enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).markerMessageArgs(marker, format, args)
-    }
 }
 
-object ConditionalMain {
+object ConditionalFluentMain {
 
   def main(args: Array[String]): Unit = {
     val latch = new AtomicBoolean(true)
     def test: Boolean = {
-      //println("test called at " + System.currentTimeMillis())
+      println("test called at " + System.currentTimeMillis())
       latch.getAndSet(!latch.get())
     }
     val underlying  = LoggerFactory.getLogger(getClass)
@@ -433,7 +399,7 @@ object ConditionalMain {
 
     var counter: Int = 0
     def mod4 = {
-      //println("mod4 called at " + System.currentTimeMillis())
+      println("mod4 called at " + System.currentTimeMillis())
       counter = (counter + 1) % 2
       counter == 1
     }
@@ -446,4 +412,25 @@ object ConditionalMain {
     moreLogger.info.message("5 {}").argument(System.currentTimeMillis().toString).log()
   }
 }
+```
+
+This renders:
+
+```
+test called at 1586136547249
+FgEdhioD88pOjtEG5uxAAA 18:29:07.251 [INFO ] e.s.c.ConditionalMain$ -  hello world, I render fine at 1586136547243
+test called at 1586136547339
+test called at 1586136547339
+FgEdhioD899nR2iDc3YgAA 18:29:07.339 [INFO ] e.s.c.ConditionalMain$ -  hello world, I render fine at 1586136547339
+test called at 1586136547339
+test called at 1586136547340
+mod4 called at 1586136547340
+FgEdhioD9ACdHaINzdiAAA 18:29:07.340 [INFO ] e.s.c.ConditionalMain$ -  1 1586136547340
+test called at 1586136547341
+test called at 1586136547341
+mod4 called at 1586136547341
+test called at 1586136547341
+test called at 1586136547341
+mod4 called at 1586136547341
+FgEdhioD9ACdHaINzdiAAB 18:29:07.341 [INFO ] e.s.c.ConditionalMain$ -  5 1586136547341
 ```
