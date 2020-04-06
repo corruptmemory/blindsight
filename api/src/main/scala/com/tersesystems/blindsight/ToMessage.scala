@@ -17,7 +17,7 @@
 package com.tersesystems.blindsight
 
 trait ToMessage[T] {
-  def toMessage(msg: => T): Message
+  def toMessage(instance: => T): Message
 }
 
 trait LowPriorityToMessage {

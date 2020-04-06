@@ -22,7 +22,7 @@ Having said that, the default assumption in the examples is that you are using [
 
 Blindsight breaks down logging statements into component parts through type classes:
 
-* `api` - `Markers`, `Message`, and `Arguments`, which compose to `Statement` through type class patterns.
+* @ref[`api`](usage/index.md) - `Markers`, `Message`, and `Arguments`, which compose to `Statement` through type class patterns.
 * `logstash` - Type class bindings of `Markers` and `Arguments` to [Logstash Markers and StructuredArguments](https://github.com/logstash/logstash-logback-encoder#event-specific-custom-fields).
 
 Blindsight provides three different logging API: 

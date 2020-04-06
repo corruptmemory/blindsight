@@ -33,5 +33,7 @@ object Message {
 
   def apply[T: ToMessage](instance: => T): Message = implicitly[ToMessage[T]].toMessage(instance)
 
+  def apply(elements: String*): Message = new Message(elements)
+
   def apply(message: => String): Message = new Message(Seq(message))
 }
