@@ -6,7 +6,7 @@ The name is taken from Peter Watt's excellent first contact novel, [Blindsight](
 
 ## Documentation 
 
-See the documentation for more details.
+See [the documentation](https://tersesystems.github.io/blindsight/) for more details.
 
 ## Overview
 
