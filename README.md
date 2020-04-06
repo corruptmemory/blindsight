@@ -2,7 +2,7 @@
 
 Blindsight is a Scala logging API that allows for fluent logging, semantic logging, and context aware logging.
  
-The name is taken from Peter Watt's excellent first contact novel, [Blindsight](https://en.wikipedia.org/wiki/Blindsight_\(Watts_novel)).
+The name is taken from Peter Watt's excellent first contact novel, [Blindsight](https://en.wikipedia.org/wiki/Blindsight_\(Watts_novel\)).
 
 ## Documentation 
 
