@@ -18,12 +18,13 @@ package example.fluent.conditional
 
 import com.tersesystems.blindsight.ToStatement
 import com.tersesystems.blindsight.fluent.{SLF4JFluentLogger, SLF4JFluentLoggerMethod}
+import com.tersesystems.blindsight.logstash.LogstashSourceInfoMixin
 import com.tersesystems.blindsight.slf4j.{LoggerAPI, LoggerPredicate}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
 class ConditionalFluentLogger(test: => Boolean, logger: SLF4JFluentLogger)
-    extends LoggerAPI[LoggerPredicate, ConditionalFluentLoggerMethod] {
+    extends LoggerAPI[LoggerPredicate, ConditionalFluentLoggerMethod] with LogstashSourceInfoMixin {
   override type Predicate = LoggerPredicate
   override type Method    = ConditionalFluentLoggerMethod
   override type Self      = ConditionalFluentLogger

@@ -27,6 +27,14 @@ This doesn't mean very much by itself, so let's show examples.
 
 ## SLF4J API
 
+The SLF4J API has the same logger methods and type signature as SLF4J, but has a couple of extra features in the `Logger` interface itself.
+
+Notably, you can pass in something that is not a marker, and provided you have a `ToMarker` in implicit scope, you can get it auto-converted.
+
+Markers can also be passed into the logger through the `logger.marker` method.  This provides a logger of the same time that will automatically apply the marker on any logging call.  This is extremely useful when you want to build up state inside a logger without having to expose it explicitly.  Under this API, you pass in a logger, and any markers you explicitly add are merged on top of the logger's markers.
+
+Finally, you can also use the `LoggerAPI` traits to selectively limit the abilities of the logger.  For example, you can create a logger which only logs at info level. 
+
 ```scala
 import com.tersesystems.blindsight._
 import com.tersesystems.blindsight.slf4j.{InfoLoggerAPI, Logger}
@@ -47,26 +55,25 @@ object Slf4jMain {
     val logger: Logger = Logger(underlying)
 
     val featureFlag = FeatureFlag("flag.enabled")
+    // this is not a marker, but is converted via type class.
     if (logger.isDebugEnabled(featureFlag)) {
       logger.debug("this is a test")
     }
 
     logger.info("hello world")
 
-    val m1 = MarkerFactory.getMarker("M1")
-    val m2 = MarkerFactory.getMarker("M2")
-    val base = logger.marker(m1).marker(m2)
-    base.info("I should have two markers")
+    val loggerWithFeatureFlagMarker = logger.marker(featureFlag)
+    loggerWithFeatureFlagMarker.info("I have the feature flag marker automatically added!")
 
-    val onlyInfo = new InfoLoggerAPI[base.Predicate, base.Method] {
-      override type Self = base.Self
-      override type Predicate = base.Predicate
-      override type Method = base.Method
+    val onlyInfo = new InfoLoggerAPI[loggerWithFeatureFlagMarker.Predicate, loggerWithFeatureFlagMarker.Method] {
+      override type Self = loggerWithFeatureFlagMarker.Self
+      override type Predicate = loggerWithFeatureFlagMarker.Predicate
+      override type Method = loggerWithFeatureFlagMarker.Method
 
-      override def isInfoEnabled: Predicate = base.isInfoEnabled
-      override def info: Method = base.info
+      override def isInfoEnabled: Predicate = loggerWithFeatureFlagMarker.isInfoEnabled
+      override def info: Method = loggerWithFeatureFlagMarker.info
     }
-    onlyInfo.info("good")
+    onlyInfo.info("this logger can only log info methods")
   }
 }
 ```
@@ -91,7 +98,11 @@ and the following JSON:
 
 ## Fluent API
 
-The fluent API works against `Markers`, `Message`, and `Arguments`.  Here it's being used with the `logstash` binding:
+A [fluent builder interface](https://www.martinfowler.com/bliki/FluentInterface.html) is an API that relies heavily on method chaining to build up an expression.  The Blindsight fluent API works with `Markers`, `Message`, and `Arguments`, and uses type classes to map appropriately, using the `ToMarkers`, `ToMessage` and `ToArguments` type classes, respectively. 
+
+The fluent API has an immediate advantage in that there's less overloading in the API, and there's more room to chain.  With type classes, it's possible to set up much richer [structured logging](https://tersesystems.com/blog/2020/03/10/a-taxonomy-of-logging/).   This is very useful when you are logging [events](https://www.honeycomb.io/blog/how-are-structured-logs-different-from-events/), because a complete picture is often not available at the beginning of the unit of work.
+
+Blindsight provides a `logstash` typeclass mapping which maps between tuples, arrays, and JSON nodes to [Markers and StructuredArguments](https://github.com/logstash/logstash-logback-encoder#event-specific-custom-fields).
 
 ```scala
 package example.fluent
@@ -143,6 +154,8 @@ and the following to `application.json`:
 ```
  
 ## Semantic API
+
+A semantic logging API is [strongly typed](https://github.com/microsoft/perfview/blob/master/documentation/TraceEvent/TraceEventProgrammersGuide.md) and does not have the same construction oriented approach as the fluent API.  Instead, the type of the instance is presumed to have a mapping directly to the attributes being logged.
 
 The semantic API works against `Statement` directly.  The application is expected to handle the type class mapping to `Statement`.
 
