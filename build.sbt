@@ -6,10 +6,10 @@ ThisBuild / scalaVersion := scala213
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.tersesystems.blindsight"
-ThisBuild / organizationName := "Will Sargent"
+ThisBuild / organizationName := "Terse Systems"
 
 ThisBuild / startYear := Some(2020)
-ThisBuild / headerLicense := Some(HeaderLicense.ALv2("2020", "Will Sargent", HeaderLicenseStyle.SpdxSyntax))
+ThisBuild / headerLicense := Some(HeaderLicense.ALv2("2020", "Terse Systems", HeaderLicenseStyle.SpdxSyntax))
 
 // previewAuto to see the site in action.
 // https://www.scala-sbt.org/sbt-site/getting-started.html#previewing-the-site
