@@ -1,5 +1,4 @@
-
-## Fluent API
+# Fluent API
 
 A [fluent builder interface](https://www.martinfowler.com/bliki/FluentInterface.html) is an API that relies heavily on method chaining to build up an expression.  The Blindsight fluent API works with `Markers`, `Message`, and `Arguments`, and uses type classes to map appropriately, using the `ToMarkers`, `ToMessage` and `ToArguments` type classes, respectively. 
 

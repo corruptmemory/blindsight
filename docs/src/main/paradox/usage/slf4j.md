@@ -1,5 +1,4 @@
-
-## SLF4J API
+# SLF4J API
 
 The SLF4J API has the same logger methods and type signature as SLF4J, but has a couple of extra features in the `Logger` interface itself.
 
