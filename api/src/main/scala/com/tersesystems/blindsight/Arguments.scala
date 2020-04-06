@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,6 @@ final class Arguments(private val elements: Seq[Any]) {
 }
 
 object Arguments {
-  def empty: Arguments             = Arguments()
+  def empty: Arguments            = Arguments()
   def apply(els: Any*): Arguments = new Arguments(els.toSeq)
 }

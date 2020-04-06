@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import sourcecode.{Enclosing, File, Line}
  * This trait defines an SLF4J compatible logger with all five levels of logging.
  */
 trait SemanticLogger[MessageType]
-  extends SemanticLoggerAPI[MessageType, LoggerPredicate, SemanticLoggerMethod]
-  with SemanticMarkerMixin[MessageType]
-  with SemanticRefineMixin[MessageType]
-  with SourceInfoMixin {
+    extends SemanticLoggerAPI[MessageType, LoggerPredicate, SemanticLoggerMethod]
+    with SemanticMarkerMixin[MessageType]
+    with SemanticRefineMixin[MessageType]
+    with SourceInfoMixin {
   type Self[T] = SemanticLogger[T]
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.tersesystems.blindsight.slf4j.Logger
 object FunctionalMain {
 
   def main(args: Array[String]): Unit = {
-    val underlying = org.slf4j.LoggerFactory.getLogger(getClass)
+    val underlying     = org.slf4j.LoggerFactory.getLogger(getClass)
     val logger: Logger = Logger(underlying)
 
     import cats.implicits._

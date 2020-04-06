@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Terse Systems
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package example.slf4j.conditional
 
 import com.tersesystems.blindsight.slf4j._
@@ -29,43 +45,54 @@ class ConditionalLogger(test: => Boolean, protected val logger: Logger with Para
   override def error: Method             = new ConditionalLoggerMethod(Level.ERROR, test, logger)
 }
 
-class ConditionalLoggerMethod(val level: Level,
-                              test: => Boolean,
-                              logger: Logger with ParameterListMixin)
-    extends LoggerMethod {
+class ConditionalLoggerMethod(
+    val level: Level,
+    test: => Boolean,
+    logger: Logger with ParameterListMixin
+) extends LoggerMethod {
 
   override def apply(message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {
       logger.parameterList(level).message(message)
     }
 
-  override def apply(format: String,
-                     arg: Any)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
+  override def apply(
+      format: String,
+      arg: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {
       logger.parameterList(level).messageArg1(format, arg)
     }
 
-  override def apply(format: String, arg1: Any, arg2: Any)(implicit line: Line,
-                                                           file: File,
-                                                           enclosing: Enclosing): Unit = if (test) {
+  override def apply(
+      format: String,
+      arg1: Any,
+      arg2: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
     logger.parameterList(level).messageArg1Arg2(format, arg1, arg2)
   }
 
-  override def apply(format: String,
-                     args: Any*)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
+  override def apply(
+      format: String,
+      args: Any*
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {
       logger.parameterList(level).messageArgs(format, args)
     }
 
-  override def apply(marker: Marker,
-                     message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
+  override def apply(
+      marker: Marker,
+      message: String
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {
       logger.parameterList(level).markerMessage(marker, message)
     }
 
-  override def apply(marker: Marker, format: String, arg: Any)(implicit line: Line,
-                                                               file: File,
-                                                               enclosing: Enclosing): Unit =
+  override def apply(
+      marker: Marker,
+      format: String,
+      arg: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {
       logger.parameterList(level).markerMessageArg1(marker, format, arg)
     }
@@ -73,13 +100,16 @@ class ConditionalLoggerMethod(val level: Level,
   override def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(
       implicit line: Line,
       file: File,
-      enclosing: Enclosing): Unit = if (test) {
+      enclosing: Enclosing
+  ): Unit = if (test) {
     logger.parameterList(level).markerMessageArg1Arg2(marker, format, arg1, arg2)
   }
 
-  override def apply(marker: Marker, format: String, args: Any*)(implicit line: Line,
-                                                                 file: File,
-                                                                 enclosing: Enclosing): Unit =
+  override def apply(
+      marker: Marker,
+      format: String,
+      args: Any*
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {
       logger.parameterList(level).markerMessageArgs(marker, format, args)
     }

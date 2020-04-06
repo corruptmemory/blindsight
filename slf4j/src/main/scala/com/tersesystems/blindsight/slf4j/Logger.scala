@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import com.tersesystems.blindsight.mixins.{MarkerMixin, SourceInfoMixin}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
-trait Logger extends LoggerAPI[LoggerPredicate, LoggerMethod] with MarkerMixin with SourceInfoMixin {
+trait Logger
+    extends LoggerAPI[LoggerPredicate, LoggerMethod]
+    with MarkerMixin
+    with SourceInfoMixin {
   override type Self <: Logger
 }
 
@@ -31,9 +34,11 @@ object Logger {
   }
 }
 
-class SLF4JLogger(val underlying: org.slf4j.Logger, val markerState: Markers) extends Logger with ParameterListMixin {
-  override type Self = SLF4JLogger
-  override type Method = SLF4JLoggerMethod
+class SLF4JLogger(val underlying: org.slf4j.Logger, val markerState: Markers)
+    extends Logger
+    with ParameterListMixin {
+  override type Self      = SLF4JLogger
+  override type Method    = SLF4JLoggerMethod
   override type Predicate = LoggerPredicate
 
   protected val parameterLists: Seq[ParameterList] = ParameterList.lists(this.underlying)
@@ -61,7 +66,12 @@ class SLF4JLogger(val underlying: org.slf4j.Logger, val markerState: Markers) ex
   @inline
   def parameterList(level: Level): ParameterList = parameterLists(level.ordinal)
 
-  override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers =
+  override def sourceInfoMarker(
+      level: Level,
+      line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Markers =
     Markers.empty
 
   override def isTraceEnabled: Predicate = new SLF4JLoggerPredicate(Level.TRACE, this)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.tersesystems.blindsight.slf4j
 
 trait LoggerComponent[P, M] {
   type Predicate <: P
-  type Method    <: M
+  type Method <: M
   type Self
 }
 
@@ -39,23 +39,23 @@ object LoggerAPI {
 
     protected val logger: Parent
 
-    override type Method = logger.Method
+    override type Method    = logger.Method
     override type Predicate = logger.Predicate
 
     override def isTraceEnabled: Predicate = logger.isTraceEnabled
-    override def trace: Method = logger.trace
+    override def trace: Method             = logger.trace
 
     override def isDebugEnabled: Predicate = logger.isDebugEnabled
-    override def debug: Method = logger.debug
+    override def debug: Method             = logger.debug
 
     override def isInfoEnabled: Predicate = logger.isInfoEnabled
-    override def info: Method = logger.info
+    override def info: Method             = logger.info
 
     override def isWarnEnabled: Predicate = logger.isWarnEnabled
-    override def warn: Method = logger.warn
+    override def warn: Method             = logger.warn
 
     override def isErrorEnabled: Predicate = logger.isErrorEnabled
-    override def error: Method = logger.error
+    override def error: Method             = logger.error
   }
 }
 

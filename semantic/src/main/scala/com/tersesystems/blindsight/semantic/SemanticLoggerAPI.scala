@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,19 +43,19 @@ object SemanticLoggerAPI {
     protected def logger: SemanticLoggerAPI[BaseType, Predicate, Method]
 
     override def isTraceEnabled: Predicate = logger.isTraceEnabled
-    override def trace: Method[BaseType] = logger.trace
+    override def trace: Method[BaseType]   = logger.trace
 
     override def isDebugEnabled: Predicate = logger.isDebugEnabled
-    override def debug: Method[BaseType] = logger.debug
+    override def debug: Method[BaseType]   = logger.debug
 
     override def isInfoEnabled: Predicate = logger.isInfoEnabled
-    override def info: Method[BaseType] = logger.info
+    override def info: Method[BaseType]   = logger.info
 
     override def isWarnEnabled: Predicate = logger.isWarnEnabled
-    override def warn: Method[BaseType] = logger.warn
+    override def warn: Method[BaseType]   = logger.warn
 
     override def isErrorEnabled: Predicate = logger.isErrorEnabled
-    override def error: Method[BaseType] = logger.error
+    override def error: Method[BaseType]   = logger.error
   }
 }
 

@@ -2,7 +2,14 @@ package com.tersesystems.blindsight.fluent
 
 import java.util.UUID
 
-import com.tersesystems.blindsight.{Arguments, Markers, Message, Statement, ToArguments, ToStatement}
+import com.tersesystems.blindsight.{
+  Arguments,
+  Markers,
+  Message,
+  Statement,
+  ToArguments,
+  ToStatement
+}
 import com.tersesystems.blindsight.fixtures.OneContextPerTest
 import net.logstash.logback.argument.StructuredArgument
 import org.scalatest.matchers.must.Matchers
@@ -22,20 +29,21 @@ class FluentLoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest 
       Arguments(keyValue("uuid", instance.payloadId))
     }
 
-    val underlying = loggerContext.getLogger("logger")
+    val underlying                 = loggerContext.getLogger("logger")
     val fluentLogger: FluentLogger = FluentLogger(underlying)
+    val uuid                       = UUID.randomUUID()
     fluentLogger.info
       .marker("HELLO")
       .message("User logged out")
-      .argument(PayloadModel(UUID.randomUUID(), "secretToken", "data"))
+      .argument(PayloadModel(uuid, "secretToken", "data"))
       .cause(new Exception("exception"))
       .logWithPlaceholders()
 
     val event = listAppender.list.get(0)
     event.getMarker.contains(MarkerFactory.getMarker("HELLO")) must be(true)
-    event.getMessage must equal("User logged out  {} {}")
+    event.getMessage must equal("User logged out  {}")
     event.getThrowableProxy.getMessage must equal("exception")
-    event.getArgumentArray must ===(Array(kv("name", "steve"), kv("reason", "timeout")))
+    event.getArgumentArray must ===(Array(kv("uuid", uuid)))
   }
 
   "work with exception" in {

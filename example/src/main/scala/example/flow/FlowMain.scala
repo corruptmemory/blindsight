@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,13 @@ object FlowMain {
 
   def main(args: Array[String]): Unit = {
     val underlying = org.slf4j.LoggerFactory.getLogger(getClass)
-    val logger = new FlowLogger(new SLF4JLogger(underlying, Markers.empty))
+    val logger     = new FlowLogger(new SLF4JLogger(underlying, Markers.empty))
 
     logger.info("About to execute flow")
 
     // Need to specify to statement type class for the exit type:
-    implicit val toIntStatement: ToStatement[Int] = ToStatement(i => Statement().withMessage(i.toString))
-    val result: Int = logger.entry("entering") { exit =>
-      exit(1 + 2)
-    }
+    implicit val toIntStatement: ToStatement[Int] =
+      ToStatement(i => Statement().withMessage(i.toString))
+    val result: Int = logger.entry("entering") { exit => exit(1 + 2) }
   }
 }

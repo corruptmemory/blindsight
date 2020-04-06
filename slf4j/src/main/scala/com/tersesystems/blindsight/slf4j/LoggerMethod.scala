@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,21 +30,31 @@ trait LoggerMethod {
 
   def apply(message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit
   def apply(format: String, arg: Any)(implicit line: Line, file: File, enclosing: Enclosing): Unit
-  def apply(format: String, arg1: Any, arg2: Any)(implicit line: Line,
-                                                  file: File,
-                                                  enclosing: Enclosing): Unit
+  def apply(format: String, arg1: Any, arg2: Any)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Unit
   def apply(format: String, args: Any*)(implicit line: Line, file: File, enclosing: Enclosing): Unit
-  def apply(marker: Marker,
-            message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit
-  def apply(marker: Marker, format: String, arg: Any)(implicit line: Line,
-                                                      file: File,
-                                                      enclosing: Enclosing): Unit
-  def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(implicit line: Line,
-                                                                  file: File,
-                                                                  enclosing: Enclosing): Unit
-  def apply(marker: Marker, format: String, args: Any*)(implicit line: Line,
-                                                        file: File,
-                                                        enclosing: Enclosing): Unit
+  def apply(
+      marker: Marker,
+      message: String
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+  def apply(marker: Marker, format: String, arg: Any)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Unit
+  def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Unit
+  def apply(marker: Marker, format: String, args: Any*)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Unit
 }
 
 trait TraceLoggerMethod extends LoggerMethod {
@@ -71,7 +81,8 @@ trait ErrorLoggerMethod extends LoggerMethod {
  * This class does the work of taking various input parameters, and determining what SLF4J method to call
  * with those parameters.
  */
-class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin) extends LoggerMethod {
+class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin)
+    extends LoggerMethod {
 
   @inline
   protected def markerState: Markers = logger.markerState
@@ -80,7 +91,7 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
   import parameterList._
 
   override def apply(msg: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-    val markers           = collateMarkers
+    val markers = collateMarkers
     if (markers.nonEmpty) {
       if (executePredicate(markers.marker)) {
         markerMessage(markers.marker, msg)
@@ -92,8 +103,10 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
     }
   }
 
-  override def apply(format: String,
-                     arg: Any)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+  override def apply(
+      format: String,
+      arg: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     val markers: Markers = collateMarkers
     if (markers.nonEmpty) {
       if (executePredicate(markers.marker)) {
@@ -106,9 +119,11 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
     }
   }
 
-  override def apply(format: String, arg1: Any, arg2: Any)(implicit line: Line,
-                                                                    file: File,
-                                                                    enclosing: Enclosing): Unit = {
+  override def apply(
+      format: String,
+      arg1: Any,
+      arg2: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     val markers: Markers = collateMarkers
     if (markers.nonEmpty) {
       if (executePredicate(markers.marker)) {
@@ -121,8 +136,11 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
     }
   }
 
-  override def apply(format: String, args: Any*)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-    val markers           = collateMarkers
+  override def apply(
+      format: String,
+      args: Any*
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    val markers = collateMarkers
     if (markers.nonEmpty) {
       if (executePredicate(markers.marker)) {
         markerMessageArgs(markers.marker, format, args)
@@ -134,19 +152,22 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
     }
   }
 
-  override def apply(marker: Marker, message: String)(implicit line: Line,
-                                                      file: File,
-                                                      enclosing: Enclosing): Unit = {
-    val markers           = collateMarkers(marker)
+  override def apply(
+      marker: Marker,
+      message: String
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    val markers = collateMarkers(marker)
     if (executePredicate(markers.marker)) {
       markerMessage(markers.marker, message)
     }
   }
 
-  override def apply(marker: Marker, format: String, arg: Any)(implicit line: Line,
-                                                               file: File,
-                                                               enclosing: Enclosing): Unit = {
-    val markers           = collateMarkers(marker)
+  override def apply(
+      marker: Marker,
+      format: String,
+      arg: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    val markers = collateMarkers(marker)
     if (executePredicate(markers.marker)) {
       markerMessageArg1(markers.marker, format, arg)
     }
@@ -155,17 +176,20 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
   override def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(
       implicit line: Line,
       file: File,
-      enclosing: Enclosing): Unit = {
-    val markers           = collateMarkers(marker)
+      enclosing: Enclosing
+  ): Unit = {
+    val markers = collateMarkers(marker)
     if (executePredicate(markers.marker)) {
       markerMessageArg1Arg2(markers.marker, format, arg1, arg2)
     }
   }
 
-  override def apply(marker: Marker, format: String, args: Any*)(implicit line: Line,
-                                                                 file: File,
-                                                                 enclosing: Enclosing): Unit = {
-    val markers           = collateMarkers(marker)
+  override def apply(
+      marker: Marker,
+      format: String,
+      args: Any*
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    val markers = collateMarkers(marker)
     if (executePredicate(markers.marker)) {
       markerMessageArgs(markers.marker, format, args)
     }
@@ -176,7 +200,9 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
     sourceMarker ++ markerState
   }
 
-  private def collateMarkers(marker: Marker)(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+  private def collateMarkers(
+      marker: Marker
+  )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
     collateMarkers + marker
   }
 

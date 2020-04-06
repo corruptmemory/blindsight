@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Terse Systems
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package example.semantic
 
 import com.tersesystems.blindsight._
@@ -49,12 +65,13 @@ object SemanticMain {
   }
 
   def main(args: Array[String]): Unit = {
-    val underlying = org.slf4j.LoggerFactory.getLogger(getClass)
+    val underlying                                 = org.slf4j.LoggerFactory.getLogger(getClass)
     val userEventLogger: SemanticLogger[UserEvent] = SemanticLogger(underlying)
     userEventLogger.info(UserLoggedInEvent("steve", "127.0.0.1"))
     userEventLogger.info(UserLoggedOutEvent("steve", "timeout"))
 
-    val onlyLoggedInEventLogger: SemanticLogger[UserLoggedInEvent] = userEventLogger.refine[UserLoggedInEvent]
+    val onlyLoggedInEventLogger: SemanticLogger[UserLoggedInEvent] =
+      userEventLogger.refine[UserLoggedInEvent]
     onlyLoggedInEventLogger.info(UserLoggedInEvent("mike", "10.0.0.1"))
   }
 }

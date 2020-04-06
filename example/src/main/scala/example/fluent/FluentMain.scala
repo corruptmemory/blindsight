@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ object FluentMain {
 
   def main(args: Array[String]): Unit = {
     import com.fasterxml.jackson.databind.ObjectMapper
-    val json = """{ "f1" : "v1" }"""
+    val json         = """{ "f1" : "v1" }"""
     val objectMapper = new ObjectMapper
-    val jsonNode = objectMapper.readTree(json)
+    val jsonNode     = objectMapper.readTree(json)
 
     FluentLogger(underlying).info
       .marker("string" -> "steve")
@@ -37,10 +37,13 @@ object FluentMain {
       .marker("boolean" -> true)
       .message("herp")
       .message("derp")
-      .message("{}").argument("arg1" -> "value1")
-      .message("{}").argument("numericArg" -> 42)
+      .message("{}")
+      .argument("arg1" -> "value1")
+      .message("{}")
+      .argument("numericArg" -> 42)
       .message("and then some more text")
-      .message("{}").argument("booleanArg" -> false)
+      .message("{}")
+      .argument("booleanArg" -> false)
       .argument(Map("a" -> "b"))
       .argument("sequenceArg" -> Seq("a", "b", "c"))
       .log()

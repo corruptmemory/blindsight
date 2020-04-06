@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
 trait FluentLoggerMethod extends FluentAPI {
-  def apply[T: ToStatement](instance: => T)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+  def apply[T: ToStatement](
+      instance: => T
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 }
 
 object FluentLoggerMethod {
@@ -32,7 +34,8 @@ object FluentLoggerMethod {
   }
 }
 
-class SLF4JFluentLoggerMethod(val level: Level, logger: SLF4JFluentLogger) extends FluentLoggerMethod {
+class SLF4JFluentLoggerMethod(val level: Level, logger: SLF4JFluentLogger)
+    extends FluentLoggerMethod {
 
   protected val parameterList: ParameterList = logger.parameterList(level)
   protected[fluent] def markerState: Markers = logger.markerState
@@ -67,7 +70,8 @@ class SLF4JFluentLoggerMethod(val level: Level, logger: SLF4JFluentLogger) exten
     }
 
     override def logWithPlaceholders(): Unit = {
-      val statement = Statement(markers = mkrs, message = m.withPlaceHolders(args), arguments = args, e)
+      val statement =
+        Statement(markers = mkrs, message = m.withPlaceHolders(args), arguments = args, e)
       apply(statement)
     }
   }
@@ -86,17 +90,22 @@ class SLF4JFluentLoggerMethod(val level: Level, logger: SLF4JFluentLogger) exten
     BuilderImpl.empty.message(instance)
   }
 
-  override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder = BuilderImpl.empty.marker(instance)
+  override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder =
+    BuilderImpl.empty.marker(instance)
 
-  override def apply[T: ToStatement](instance: => T)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+  override def apply[T: ToStatement](
+      instance: => T
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     val statement = implicitly[ToStatement[T]].toStatement(instance)
-    val markers           = collateMarkers(statement.markers)
+    val markers   = collateMarkers(statement.markers)
     if (isEnabled(markers)) {
       parameterList.executeStatement(statement.withMarkers(markers))
     }
   }
 
-  protected def collateMarkers(markers: Markers)(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+  protected def collateMarkers(
+      markers: Markers
+  )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
     val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
     sourceMarkers ++ markerState ++ markers
   }

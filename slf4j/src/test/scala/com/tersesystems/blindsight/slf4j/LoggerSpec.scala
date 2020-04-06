@@ -135,8 +135,8 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
   "logger with state marker" should {
     "calling predicate" should {
       "call with no arguments" in {
-        val nomarkerLogger = Logger(loggerContext.getLogger("testing"))
-        val marker = MarkerFactory.getDetachedMarker("DENY_MARKER")
+        val nomarkerLogger        = Logger(loggerContext.getLogger("testing"))
+        val marker                = MarkerFactory.getDetachedMarker("DENY_MARKER")
         val loggerWithStateMarker = nomarkerLogger.marker(marker)
 
         // We were true before, so if false it's because the DENY_MARKER was hit
@@ -144,8 +144,8 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
       }
 
       "call with marker argument" in {
-        val nomarkerLogger = Logger(loggerContext.getLogger("testing"))
-        val marker = MarkerFactory.getDetachedMarker("DENY_MARKER")
+        val nomarkerLogger        = Logger(loggerContext.getLogger("testing"))
+        val marker                = MarkerFactory.getDetachedMarker("DENY_MARKER")
         val loggerWithStateMarker = nomarkerLogger.marker(marker)
 
         val childMarker = MarkerFactory.getDetachedMarker("CHILD_MARKER")
@@ -160,28 +160,28 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
       "call with message and argument" in {
         val nomarkerLogger = Logger(loggerContext.getLogger("testing"))
 
-        val marker = MarkerFactory.getDetachedMarker("MARKER")
+        val marker                = MarkerFactory.getDetachedMarker("MARKER")
         val loggerWithStateMarker = nomarkerLogger.marker(marker)
 
         // No explicit marker...
         loggerWithStateMarker.debug("hello world", 42)
 
         val event = listAppender.list.get(0)
-        val m = event.getMarker
+        val m     = event.getMarker
         m.contains(marker) must be(true)
       }
 
       "call with marker, message and argument" in {
         val nomarkerLogger = Logger(loggerContext.getLogger("testing"))
 
-        val marker1 = MarkerFactory.getDetachedMarker("MARKER1")
+        val marker1               = MarkerFactory.getDetachedMarker("MARKER1")
         val loggerWithStateMarker = nomarkerLogger.marker(marker1)
 
         // No explicit marker...
         val marker2 = MarkerFactory.getDetachedMarker("MARKER2")
         loggerWithStateMarker.debug(marker2, "hello world", 42)
 
-        val event = listAppender.list.get(0)
+        val event  = listAppender.list.get(0)
         val marker = event.getMarker
         marker.contains(marker1) must be(true)
         marker.contains(marker2) must be(true)
@@ -190,14 +190,14 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
       "call with marker, message and two arguments" in {
         val nomarkerLogger = Logger(loggerContext.getLogger("testing"))
 
-        val marker1 = MarkerFactory.getDetachedMarker("MARKER1")
+        val marker1               = MarkerFactory.getDetachedMarker("MARKER1")
         val loggerWithStateMarker = nomarkerLogger.marker(marker1)
 
         // No explicit marker...
         val marker2 = MarkerFactory.getDetachedMarker("MARKER2")
         loggerWithStateMarker.debug(marker2, "hello world", 42, 1)
 
-        val event = listAppender.list.get(0)
+        val event  = listAppender.list.get(0)
         val marker = event.getMarker
         marker.contains(marker1) must be(true)
         marker.contains(marker2) must be(true)
@@ -209,14 +209,14 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
       "call with marker, message and several arguments" in {
         val nomarkerLogger = Logger(loggerContext.getLogger("testing"))
 
-        val marker1 = MarkerFactory.getDetachedMarker("MARKER1")
+        val marker1               = MarkerFactory.getDetachedMarker("MARKER1")
         val loggerWithStateMarker = nomarkerLogger.marker(marker1)
 
         // No explicit marker...
         val marker2 = MarkerFactory.getDetachedMarker("MARKER2")
         loggerWithStateMarker.debug(marker2, "hello world", 42, 1, "332")
 
-        val event = listAppender.list.get(0)
+        val event  = listAppender.list.get(0)
         val marker = event.getMarker
         marker.contains(marker1) must be(true)
         marker.contains(marker2) must be(true)

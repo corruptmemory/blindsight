@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.tersesystems.blindsight.slf4j
 
 import com.tersesystems.blindsight.{Markers, ToMarkers}
 import org.slf4j.event.Level
-
 
 /**
  * This is the predicate that must be met before logging can happen.

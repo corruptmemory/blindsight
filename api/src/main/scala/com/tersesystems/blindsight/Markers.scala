@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ import org.slf4j.{Marker, MarkerFactory}
 import scala.collection.immutable
 import scala.collection.immutable.StrictOptimizedSetOps
 
-final class Markers private (internal: Set[Marker]) extends immutable.Set[Marker] with StrictOptimizedSetOps[Marker, Set, Set[Marker]] {
+final class Markers private (internal: Set[Marker])
+    extends immutable.Set[Marker]
+    with StrictOptimizedSetOps[Marker, Set, Set[Marker]] {
   override def incl(elem: Marker): Set[Marker] = (internal.incl(elem))
   override def excl(elem: Marker): Set[Marker] = (internal.excl(elem))
   override def contains(elem: Marker): Boolean = internal.contains(elem)
-  override def iterator: Iterator[Marker] = internal.iterator
+  override def iterator: Iterator[Marker]      = internal.iterator
 
   lazy val marker: Marker = {
     val init = MarkerFactory.getDetachedMarker(internal.toString())
-    internal.foldLeft(init) { (acc, el) =>
-      acc.add(el); acc;
-    }
+    internal.foldLeft(init) { (acc, el) => acc.add(el); acc; }
   }
 }
 
@@ -44,6 +44,6 @@ object Markers {
   def apply[T: ToMarkers](instance: => T): Markers = implicitly[ToMarkers[T]].toMarkers(instance)
 
   def apply(markers: Set[Marker]): Markers = new Markers(markers)
-  def apply(elements: Marker*): Markers = new Markers(Set(elements:_*))
-  def apply(marker: Marker): Markers = new Markers(Set(marker))
+  def apply(elements: Marker*): Markers    = new Markers(Set(elements: _*))
+  def apply(marker: Marker): Markers       = new Markers(Set(marker))
 }

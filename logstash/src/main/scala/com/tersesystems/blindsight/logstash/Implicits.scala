@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,29 +24,34 @@ import scala.collection.JavaConverters._
 
 trait LowPriorityMarkers {
 
-  implicit val tupleStringToMarkers: ToMarkers[(String, String)] = ToMarkers { case (k, v) =>
-    Markers(LogstashMarkers.append(k, v))
+  implicit val tupleStringToMarkers: ToMarkers[(String, String)] = ToMarkers {
+    case (k, v) =>
+      Markers(LogstashMarkers.append(k, v))
   }
 
-  implicit val tupleBooleanToMarkers: ToMarkers[(String, Boolean)] = ToMarkers { case (k, v) =>
-    Markers(LogstashMarkers.append(k, v))
+  implicit val tupleBooleanToMarkers: ToMarkers[(String, Boolean)] = ToMarkers {
+    case (k, v) =>
+      Markers(LogstashMarkers.append(k, v))
   }
 
-  implicit def tupleNumericToMarkers[T: Numeric]: ToMarkers[(String, T)] = ToMarkers { case (k, v) =>
-    Markers(LogstashMarkers.append(k, v))
+  implicit def tupleNumericToMarkers[T: Numeric]: ToMarkers[(String, T)] = ToMarkers {
+    case (k, v) =>
+      Markers(LogstashMarkers.append(k, v))
   }
 
-  implicit def jsonToMarkers[T: ToJsonNode]: ToMarkers[(String, T)] = ToMarkers { case (k, instance) =>
-    Markers {
-      LogstashMarkers.defer { () =>
-        val node = implicitly[ToJsonNode[T]].jsonNode(instance)
-        LogstashMarkers.appendRaw(k, node.toPrettyString)
+  implicit def jsonToMarkers[T: ToJsonNode]: ToMarkers[(String, T)] = ToMarkers {
+    case (k, instance) =>
+      Markers {
+        LogstashMarkers.defer { () =>
+          val node = implicitly[ToJsonNode[T]].jsonNode(instance)
+          LogstashMarkers.appendRaw(k, node.toPrettyString)
+        }
       }
-    }
   }
 
-  implicit def arrayToMarkers[T]: ToMarkers[(String, Seq[T])] = ToMarkers { case (k, v) =>
-    Markers(LogstashMarkers.appendArray(k, v:_*))
+  implicit def arrayToMarkers[T]: ToMarkers[(String, Seq[T])] = ToMarkers {
+    case (k, v) =>
+      Markers(LogstashMarkers.appendArray(k, v: _*))
   }
 
   implicit def mapToMarkers[T]: ToMarkers[Map[String, T]] = ToMarkers { map =>
@@ -58,27 +63,34 @@ trait LowPriorityMarkers {
 trait LowPriorityToArguments {
   implicit val argToArguments: ToArguments[StructuredArgument] = ToArguments(Arguments(_))
 
-  implicit val iterableArgToArguments: ToArguments[IterableOnce[StructuredArgument]] = ToArguments(Arguments(_))
+  implicit val iterableArgToArguments: ToArguments[IterableOnce[StructuredArgument]] = ToArguments(
+    Arguments(_)
+  )
 
-  implicit val kvStringToArguments: ToArguments[(String, String)] = ToArguments { case (k, v) =>
-    Arguments(StructuredArguments.keyValue(k, v))
+  implicit val kvStringToArguments: ToArguments[(String, String)] = ToArguments {
+    case (k, v) =>
+      Arguments(StructuredArguments.keyValue(k, v))
   }
 
-  implicit val kvBooleanToArguments: ToArguments[(String, Boolean)] = ToArguments { case (k, v) =>
-    Arguments(StructuredArguments.keyValue(k, v))
+  implicit val kvBooleanToArguments: ToArguments[(String, Boolean)] = ToArguments {
+    case (k, v) =>
+      Arguments(StructuredArguments.keyValue(k, v))
   }
 
-  implicit def numericToArguments[T: Numeric]: ToArguments[(String, T)] = ToArguments { case (k, v) =>
-    Arguments(StructuredArguments.keyValue(k, v))
+  implicit def numericToArguments[T: Numeric]: ToArguments[(String, T)] = ToArguments {
+    case (k, v) =>
+      Arguments(StructuredArguments.keyValue(k, v))
   }
 
-  implicit def jsonToArguments[T: ToJsonNode]: ToArguments[(String, T)] = ToArguments { case (k, instance) =>
-    val node = implicitly[ToJsonNode[T]].jsonNode(instance)
-    Arguments(StructuredArguments.raw(k, node.toPrettyString))
+  implicit def jsonToArguments[T: ToJsonNode]: ToArguments[(String, T)] = ToArguments {
+    case (k, instance) =>
+      val node = implicitly[ToJsonNode[T]].jsonNode(instance)
+      Arguments(StructuredArguments.raw(k, node.toPrettyString))
   }
 
-  implicit def arrayToArguments[T]: ToArguments[(String, Seq[T])] = ToArguments { case (k, v) =>
-    Arguments(StructuredArguments.array(k, v:_*))
+  implicit def arrayToArguments[T]: ToArguments[(String, Seq[T])] = ToArguments {
+    case (k, v) =>
+      Arguments(StructuredArguments.array(k, v: _*))
   }
 
   implicit def mapToArguments[T]: ToArguments[Map[String, T]] = ToArguments { inputMap =>

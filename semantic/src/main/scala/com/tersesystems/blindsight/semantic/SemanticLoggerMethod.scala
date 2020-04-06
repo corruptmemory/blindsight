@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ trait SemanticLoggerMethod[MessageType] {
   def level: Level
 
   def apply[T <: MessageType: ToStatement](
-                                            instance: T,
-                                            t: Throwable
-                                          )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+      instance: T,
+      t: Throwable
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 
   def apply[T <: MessageType: ToStatement](
-                                            instance: T
-                                          )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+      instance: T
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 }
 
 class SLF4JSemanticLoggerMethod[BaseType](val level: Level, logger: SLF4JSemanticLogger[BaseType])
@@ -50,7 +50,9 @@ class SLF4JSemanticLoggerMethod[BaseType](val level: Level, logger: SLF4JSemanti
     }
   }
 
-  protected def collateMarkers(markers: Markers)(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+  protected def collateMarkers(
+      markers: Markers
+  )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
     val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
     sourceMarkers ++ markerState ++ markers
   }
@@ -59,7 +61,7 @@ class SLF4JSemanticLoggerMethod[BaseType](val level: Level, logger: SLF4JSemanti
       instance: T
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     val statement: Statement = implicitly[ToStatement[T]].toStatement(instance)
-    val markers = collateMarkers(statement.markers)
+    val markers              = collateMarkers(statement.markers)
     if (isEnabled(markers)) {
       parameterList.executeStatement(statement.withMarkers(markers))
     }
@@ -70,7 +72,7 @@ class SLF4JSemanticLoggerMethod[BaseType](val level: Level, logger: SLF4JSemanti
       t: Throwable
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     val statement = implicitly[ToStatement[T]].toStatement(instance)
-    val markers = collateMarkers(statement.markers)
+    val markers   = collateMarkers(statement.markers)
     if (isEnabled(markers)) {
       parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ object Slf4jMain {
   }
 
   def main(args: Array[String]): Unit = {
-    val underlying = org.slf4j.LoggerFactory.getLogger(getClass)
+    val underlying     = org.slf4j.LoggerFactory.getLogger(getClass)
     val logger: Logger = Logger(underlying)
 
     val featureFlag = FeatureFlag("flag.enabled")
@@ -41,18 +41,18 @@ object Slf4jMain {
 
     logger.info("hello world")
 
-    val m1 = MarkerFactory.getMarker("M1")
-    val m2 = MarkerFactory.getMarker("M2")
+    val m1   = MarkerFactory.getMarker("M1")
+    val m2   = MarkerFactory.getMarker("M2")
     val base = logger.marker(m1).marker(m2)
     base.info("I should have two markers")
 
     val onlyInfo = new InfoLoggerAPI[base.Predicate, base.Method] {
-      override type Self = base.Self
+      override type Self      = base.Self
       override type Predicate = base.Predicate
-      override type Method = base.Method
+      override type Method    = base.Method
 
       override def isInfoEnabled: Predicate = base.isInfoEnabled
-      override def info: Method = base.info
+      override def info: Method             = base.info
     }
     onlyInfo.info("good")
   }

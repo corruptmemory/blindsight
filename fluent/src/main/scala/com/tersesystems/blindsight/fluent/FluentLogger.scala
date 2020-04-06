@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,10 @@ import org.slf4j.event.Level
 import org.slf4j.event.Level._
 import sourcecode.{Enclosing, File, Line}
 
-trait FluentLogger extends LoggerAPI[LoggerPredicate, FluentLoggerMethod] with MarkerMixin with SourceInfoMixin
+trait FluentLogger
+    extends LoggerAPI[LoggerPredicate, FluentLoggerMethod]
+    with MarkerMixin
+    with SourceInfoMixin
 
 object FluentLogger {
   def apply(underlying: slf4j.Logger): FluentLogger = {
@@ -33,8 +36,8 @@ object FluentLogger {
 }
 
 class SLF4JFluentLogger(logger: SLF4JLogger) extends FluentLogger with ParameterListMixin {
-  override type Self = SLF4JFluentLogger
-  override type Method = SLF4JFluentLoggerMethod
+  override type Self      = SLF4JFluentLogger
+  override type Method    = SLF4JFluentLoggerMethod
   override type Predicate = LoggerPredicate
 
   override def isTraceEnabled: Predicate = logger.predicate(TRACE)
@@ -53,11 +56,16 @@ class SLF4JFluentLogger(logger: SLF4JLogger) extends FluentLogger with Parameter
   override def error: Method             = new SLF4JFluentLoggerMethod(ERROR, this)
 
   def parameterList(level: Level): ParameterList = logger.parameterList(level)
-  def markerState: Markers = logger.markerState
+  def markerState: Markers                       = logger.markerState
 
   override def marker[T: ToMarkers](markerInstance: T): Self = {
     new SLF4JFluentLogger(logger.marker(markerInstance))
   }
 
-  override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers = Markers.empty
+  override def sourceInfoMarker(
+      level: Level,
+      line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Markers = Markers.empty
 }

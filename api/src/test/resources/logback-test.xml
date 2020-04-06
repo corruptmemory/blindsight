@@ -4,6 +4,6 @@
     </appender>
 
     <root level="TRACE">
-        <appender-ref ref="LIST" />
+        <appender-ref ref="LIST"/>
     </root>
 </configuration>

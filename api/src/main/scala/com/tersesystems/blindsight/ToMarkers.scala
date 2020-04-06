@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,13 @@ trait ToMarkers[T] {
 }
 
 trait LowPriorityToMarkers {
-  implicit val stringToMarker: ToMarkers[String] = (instance: String) => Markers(MarkerFactory.getMarker(instance))
+  implicit val stringToMarker: ToMarkers[String] = (instance: String) =>
+    Markers(MarkerFactory.getMarker(instance))
   implicit val markerToMarkers: ToMarkers[Marker] = (instance: Marker) => Markers(instance)
 
   implicit val markersToMarkers: ToMarkers[Markers] = (instance: Markers) => instance
 }
 
-object ToMarkers extends LowPriorityToMarkers{
+object ToMarkers extends LowPriorityToMarkers {
   def apply[T](f: T => Markers): ToMarkers[T] = f(_)
 }

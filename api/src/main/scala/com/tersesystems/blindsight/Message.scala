@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.tersesystems.blindsight
 
-final class Message private(fragments: Seq[String]) {
+final class Message private (fragments: Seq[String]) {
   def withPlaceHolders(args: Arguments): Message = {
     new Message(fragments :+ args.placeholders)
   }

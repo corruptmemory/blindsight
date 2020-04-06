@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,7 @@ trait LowPriorityToArguments {
     new Arguments(Seq(string))
   }
 
-  implicit val anyToArguments: ToArguments[Any] = ToArguments { any =>
-    new Arguments(Seq(any))
-  }
+  implicit val anyToArguments: ToArguments[Any] = ToArguments { any => new Arguments(Seq(any)) }
 }
 
 object ToArguments extends LowPriorityToArguments {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.tersesystems.blindsight
 
-
 trait ToMessage[T] {
   def toMessage(msg: => T): Message
 }
@@ -26,12 +25,12 @@ trait LowPriorityToMessage {
     override def toMessage(msg: => String): Message = Message(msg)
   }
 
-  implicit val tupleToMessage: ToMessage[(String, String)] = ToMessage { case (k, v) =>
-    Message(s"$k=$v")
+  implicit val tupleToMessage: ToMessage[(String, String)] = ToMessage {
+    case (k, v) =>
+      Message(s"$k=$v")
   }
 }
 
 object ToMessage extends LowPriorityToMessage {
   def apply[T](f: T => Message): ToMessage[T] = f(_)
 }
-

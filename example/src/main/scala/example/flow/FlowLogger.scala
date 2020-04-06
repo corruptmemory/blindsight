@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Will Sargent
+ * Copyright 2020 Terse Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,28 @@ import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
 class FlowLogger(protected val logger: Logger)
-    extends LoggerAPI.Proxy[LoggerPredicate, LoggerMethod] with Logger {
+    extends LoggerAPI.Proxy[LoggerPredicate, LoggerMethod]
+    with Logger {
   override type Parent = Logger
-  override type Self = FlowLogger
+  override type Self   = FlowLogger
 
   private val entryLogger = logger.marker(MarkerFactory.getMarker("ENTRY"))
-  private val exitLogger = logger.marker(MarkerFactory.getMarker("EXIT"))
+  private val exitLogger  = logger.marker(MarkerFactory.getMarker("EXIT"))
 
   def entry: LoggerFlowMethod = {
     new LoggerFlowMethod {
-      override def apply[B](message: String)(block: ExitHandle => B)(implicit enclosing: Enclosing): B = {
+      override def apply[B](
+          message: String
+      )(block: ExitHandle => B)(implicit enclosing: Enclosing): B = {
         entryLogger.trace(s"${enclosing.value} enter: $message")
         block(new ExitHandle {
           override def apply[T: ToStatement](instance: => T): T = {
             val result = instance
-            val s = implicitly[ToStatement[T]].toStatement(result)
-            exitLogger.trace(s"${enclosing.value} exit: result = ${s.message.toString}", s.arguments.asArray: _*)
+            val s      = implicitly[ToStatement[T]].toStatement(result)
+            exitLogger.trace(
+              s"${enclosing.value} exit: result = ${s.message.toString}",
+              s.arguments.asArray: _*
+            )
             result
           }
         })
@@ -46,12 +52,15 @@ class FlowLogger(protected val logger: Logger)
     }
   }
 
-  override def sourceInfoMarker(level: Level,
-                                line: Line,
-                                file: File,
-                                enclosing: Enclosing): Markers = Markers.empty
+  override def sourceInfoMarker(
+      level: Level,
+      line: Line,
+      file: File,
+      enclosing: Enclosing
+  ): Markers = Markers.empty
 
-  override def marker[T: ToMarkers](markerInstance: T) = new FlowLogger(logger.marker(markerInstance))
+  override def marker[T: ToMarkers](markerInstance: T) =
+    new FlowLogger(logger.marker(markerInstance))
 
   override def markerState: Markers = logger.markerState
 }
