@@ -39,11 +39,12 @@ object Slf4jMain {
       logger.debug("this is a test")
     }
 
-    logger.info(Statement().withMessage("hello there"))
-
     logger.info("hello world")
 
     val m1   = MarkerFactory.getMarker("M1")
+
+    logger.info("a" -> "b {} {}", Arguments(42, 53))
+
     val m2   = MarkerFactory.getMarker("M2")
     val base = logger.marker(m1).marker(m2)
     base.info("I should have two markers")

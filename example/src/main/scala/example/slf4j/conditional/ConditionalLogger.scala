@@ -16,7 +16,7 @@
 
 package example.slf4j.conditional
 
-import com.tersesystems.blindsight.Statement
+import com.tersesystems.blindsight.{Arguments, Statement, ToMessage}
 import com.tersesystems.blindsight.slf4j._
 import org.slf4j.Marker
 import org.slf4j.event.Level
@@ -52,70 +52,70 @@ class ConditionalLoggerMethod(
     logger: Logger with ParameterListMixin
 ) extends LoggerMethod {
 
-  override def apply(statement: Statement)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-    logger.parameterList(level).executeStatement(statement)
+  protected val parameterList: ParameterList = logger.parameterList(level)
+
+  override def apply[M: ToMessage](
+      instance: => M)(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+    parameterList.message(implicitly[ToMessage[M]].toMessage(instance).toString)
   }
 
-  override def apply(message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).message(message)
-    }
-
-  override def apply(
-      format: String,
-      arg: Any
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).messageArg1(format, arg)
-    }
-
-  override def apply(
-      format: String,
-      arg1: Any,
-      arg2: Any
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
-    logger.parameterList(level).messageArg1Arg2(format, arg1, arg2)
+  override def apply[M: ToMessage](instance: => M, args: Arguments)(implicit line: Line,
+                                                             file: File,
+                                                             enclosing: Enclosing): Unit = if (test) {
+    parameterList.messageArgs(implicitly[ToMessage[M]].toMessage(instance).toString, args.asArray)
   }
 
-  override def apply(
-      format: String,
-      args: Any*
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).messageArgs(format, args)
-    }
+  override def apply[M: ToMessage](instance: => M, arg: Any)(implicit line: Line,
+                                                             file: File,
+                                                             enclosing: Enclosing): Unit = if (test) {
+    parameterList.messageArg1(implicitly[ToMessage[M]].toMessage(instance).toString, arg)
+  }
 
-  override def apply(
-      marker: Marker,
-      message: String
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).markerMessage(marker, message)
-    }
-
-  override def apply(
-      marker: Marker,
-      format: String,
-      arg: Any
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).markerMessageArg1(marker, format, arg)
-    }
-
-  override def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(
+  override def apply[M: ToMessage](instance: => M, arg1: Any, arg2: Any)(
       implicit line: Line,
       file: File,
-      enclosing: Enclosing
-  ): Unit = if (test) {
-    logger.parameterList(level).markerMessageArg1Arg2(marker, format, arg1, arg2)
+      enclosing: Enclosing): Unit = if (test) {
+    parameterList.messageArg1Arg2(implicitly[ToMessage[M]].toMessage(instance).toString, arg1, arg2)
   }
 
-  override def apply(
-      marker: Marker,
-      format: String,
-      args: Any*
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit =
-    if (test) {
-      logger.parameterList(level).markerMessageArgs(marker, format, args)
-    }
+  override def apply[M: ToMessage](instance: => M, args: Any*)(implicit line: Line,
+                                                               file: File,
+                                                               enclosing: Enclosing): Unit = if (test) {
+    parameterList.messageArgs(implicitly[ToMessage[M]].toMessage(instance).toString, args)
+  }
+
+  override def apply[M: ToMessage](
+      marker: => Marker,
+      instance: => M)(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+    parameterList.markerMessage(marker, implicitly[ToMessage[M]].toMessage(instance).toString)
+  }
+
+  override def apply[M: ToMessage](marker: => Marker, instance: => M, args: Arguments)(
+    implicit line: Line,
+    file: File,
+    enclosing: Enclosing): Unit = if (test) {
+    parameterList.markerMessageArgs(marker, implicitly[ToMessage[M]].toMessage(instance).toString, args.asArray)
+  }
+
+  override def apply[M: ToMessage](marker: => Marker, instance: => M, arg: Any)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing): Unit = if (test) {
+    parameterList.markerMessageArg1(marker, implicitly[ToMessage[M]].toMessage(instance).toString, arg)
+  }
+
+  override def apply[M: ToMessage](marker: => Marker, instance: => M, arg1: Any, arg2: Any)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing): Unit = if (test) {
+    parameterList.markerMessageArg1Arg2(marker, implicitly[ToMessage[M]].toMessage(instance).toString, arg1, arg2)
+  }
+
+  override def apply[M: ToMessage](marker: => Marker, instance: => M, args: Any*)(
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing): Unit = if (test) {
+    parameterList.markerMessageArgs(marker, implicitly[ToMessage[M]].toMessage(instance).toString, args)
+  }
+
 }
