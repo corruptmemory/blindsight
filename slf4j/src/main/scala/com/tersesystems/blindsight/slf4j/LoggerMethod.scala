@@ -16,7 +16,7 @@
 
 package com.tersesystems.blindsight.slf4j
 
-import com.tersesystems.blindsight.Markers
+import com.tersesystems.blindsight.{Markers, Statement}
 import com.tersesystems.blindsight.mixins.MarkerMixin
 import org.slf4j.Marker
 import org.slf4j.event.Level
@@ -28,28 +28,37 @@ import sourcecode.{Enclosing, File, Line}
 trait LoggerMethod {
   def level: Level
 
+  def apply(statement: Statement)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
   def apply(message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
   def apply(format: String, arg: Any)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
   def apply(format: String, arg1: Any, arg2: Any)(
       implicit line: Line,
       file: File,
       enclosing: Enclosing
   ): Unit
+
   def apply(format: String, args: Any*)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
   def apply(
       marker: Marker,
       message: String
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
   def apply(marker: Marker, format: String, arg: Any)(
       implicit line: Line,
       file: File,
       enclosing: Enclosing
   ): Unit
+
   def apply(marker: Marker, format: String, arg1: Any, arg2: Any)(
       implicit line: Line,
       file: File,
       enclosing: Enclosing
   ): Unit
+
   def apply(marker: Marker, format: String, args: Any*)(
       implicit line: Line,
       file: File,
@@ -89,6 +98,10 @@ class SLF4JLoggerMethod(val level: Level, logger: Logger with ParameterListMixin
 
   protected val parameterList: ParameterList = logger.parameterList(level)
   import parameterList._
+
+  override def apply(statement: Statement)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    parameterList.executeStatement(statement)
+  }
 
   override def apply(msg: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
     val markers = collateMarkers

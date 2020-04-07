@@ -23,9 +23,13 @@ final class Arguments(private val elements: Seq[Any]) {
   def isEmpty: Boolean    = elements.isEmpty
 
   def ++(args: Arguments): Arguments = new Arguments(elements ++ args.elements)
+
+  def toStatement: Statement = Statement().withArguments(this)
 }
 
 object Arguments {
+  implicit val argumentsToArguments: ToArguments[Arguments] = ToArguments((instance: Arguments) => instance)
+
   def empty: Arguments            = Arguments()
   def apply(els: Any*): Arguments = new Arguments(els.toSeq)
 }

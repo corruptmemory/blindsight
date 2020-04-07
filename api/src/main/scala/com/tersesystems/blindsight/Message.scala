@@ -26,14 +26,18 @@ final class Message private (fragments: Seq[String]) {
   override def toString: String = fragments.mkString(" ")
 
   def mkString(sep: String): String = fragments.mkString(sep)
+
+  def toStatement: Statement = Statement().withMessage(this)
 }
 
 object Message {
+  implicit val toMessage: ToMessage[Message] = ToMessage((instance: Message) => instance)
+
   def empty: Message = new Message(Seq.empty)
 
   def apply[T: ToMessage](instance: => T): Message = implicitly[ToMessage[T]].toMessage(instance)
 
-  def apply(elements: String*): Message = new Message(elements)
+  def apply(elements: Seq[String]): Message = new Message(elements)
 
   def apply(message: => String): Message = new Message(Seq(message))
 }

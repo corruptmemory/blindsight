@@ -33,9 +33,12 @@ final class Markers private (internal: Set[Marker])
     val init = MarkerFactory.getDetachedMarker(internal.toString())
     internal.foldLeft(init) { (acc, el) => acc.add(el); acc; }
   }
+
+  def toStatement: Statement = Statement().withMarkers(this)
 }
 
 object Markers {
+  implicit val markersToMarkers: ToMarkers[Markers] = ToMarkers((instance: Markers) => instance)
 
   implicit def setToMarkers(set: Set[Marker]): Markers = Markers(set)
 

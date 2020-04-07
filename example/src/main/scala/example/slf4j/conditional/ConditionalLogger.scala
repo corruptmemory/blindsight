@@ -16,6 +16,7 @@
 
 package example.slf4j.conditional
 
+import com.tersesystems.blindsight.Statement
 import com.tersesystems.blindsight.slf4j._
 import org.slf4j.Marker
 import org.slf4j.event.Level
@@ -50,6 +51,10 @@ class ConditionalLoggerMethod(
     test: => Boolean,
     logger: Logger with ParameterListMixin
 ) extends LoggerMethod {
+
+  override def apply(statement: Statement)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    logger.parameterList(level).executeStatement(statement)
+  }
 
   override def apply(message: String)(implicit line: Line, file: File, enclosing: Enclosing): Unit =
     if (test) {

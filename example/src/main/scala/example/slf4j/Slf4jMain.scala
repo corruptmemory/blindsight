@@ -39,6 +39,8 @@ object Slf4jMain {
       logger.debug("this is a test")
     }
 
+    logger.info(Statement().withMessage("hello there"))
+
     logger.info("hello world")
 
     val m1   = MarkerFactory.getMarker("M1")

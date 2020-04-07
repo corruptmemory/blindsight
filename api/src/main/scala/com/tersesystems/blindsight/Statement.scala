@@ -46,27 +46,8 @@ object Statement {
 
   def apply(): Statement = Statement(Markers.empty, Message.empty, Arguments.empty, None)
 
-//  def string(f: => String): Statement =
-//    Statement(Markers.empty, Message(f), Arguments.empty, None)
-//
-//  def stringArg(f: => (String, _)): Statement =
-//    Statement(Markers.empty, Message(f._1), Arguments(f._2), None)
-//
-//  def stringArg1Arg2(f: => (String, _, _)): Statement =
-//    Statement(Markers.empty, Message(f._1), Arguments(f._2, f._3), None)
-//
-//  def stringArray(f: => (String, Seq[_])): Statement =
-//    Statement(Markers.empty, Message(f._1), Arguments(f._2), None)
-//
-//  def markerString(f: => (Marker, String)): Statement =
-//    Statement(Markers(f._1), Message(f._2), Arguments.empty, None)
-//
-//  def markerStringArg(f: => (Marker, String, _)): Statement =
-//    Statement(Markers(f._1), Message(f._2), Arguments(f._3), None)
-//
-//  def markerStringArg1Arg2(f: (Marker, String, _, _)): Statement =
-//    Statement(Markers(f._1), Message(f._2), Arguments(f._3, f._4), None)
-//
-//  def markerStringArray(f: (Marker, String, Seq[_])): Statement =
-//    Statement(Markers(f._1), Message(f._2), Arguments(f._3), None)
+  implicit val markersToStatement: ToStatement[Markers] = ToStatement(instance => instance.toStatement)
+  implicit val argumentsToStatement: ToStatement[Arguments] = ToStatement(instance => instance.toStatement)
+  implicit val messageToStatement: ToStatement[Message] = ToStatement(instance => instance.toStatement)
+
 }

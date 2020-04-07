@@ -26,8 +26,6 @@ trait LowPriorityToMarkers {
   implicit val stringToMarker: ToMarkers[String] = (instance: String) =>
     Markers(MarkerFactory.getMarker(instance))
   implicit val markerToMarkers: ToMarkers[Marker] = (instance: Marker) => Markers(instance)
-
-  implicit val markersToMarkers: ToMarkers[Markers] = (instance: Markers) => instance
 }
 
 object ToMarkers extends LowPriorityToMarkers {
