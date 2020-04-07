@@ -12,6 +12,17 @@ ThisBuild / startYear := Some(2020)
 ThisBuild / licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / headerLicense := None
 
+
+val disableDocs = Seq[Setting[_]](
+  sources in (Compile, doc) := Seq.empty,
+  publishArtifact in (Compile, packageDoc) := false
+)
+
+val disablePublishing = Seq[Setting[_]](
+  publishArtifact := false,
+  skip in publish := true
+)
+
 // sbt ghpagesPushSite to publish to ghpages
 // previewAuto to see the site in action.
 // https://www.scala-sbt.org/sbt-site/getting-started.html#previewing-the-site
@@ -25,7 +36,7 @@ lazy val docs = (project in file("docs"))
     mappings in makeSite ++= Seq(
       file("LICENSE") -> "LICENSE"
     )
-  )
+  ).settings(disablePublishing)
 
 lazy val fixtures = (project in file("fixtures"))
   .settings(
@@ -33,7 +44,7 @@ lazy val fixtures = (project in file("fixtures"))
     libraryDependencies += logbackClassic           % Test,
     libraryDependencies += logstashLogbackEncoder   % Test,
     libraryDependencies += scalaTest                % Test
-  )
+  ).settings(disablePublishing).settings(disableDocs)
 
 lazy val api = (project in file("api")).settings(
   name := "blindsight-api",
@@ -82,6 +93,18 @@ lazy val logstash = (project in file("logstash"))
   )
   .dependsOn(api)
 
+// API that provides a logger with everything
+lazy val all = (project in file("all")).settings(
+  name := "blindsight"
+).dependsOn(api, slf4j, semantic, fluent)
+
+// serviceloader implementation using logstash plugin
+lazy val logback = (project in file("logback"))
+  .settings(
+    name := "blindsight-logback",
+    libraryDependencies += logbackClassic
+  ).dependsOn(all, logstash)
+
 lazy val example = (project in file("example"))
   .settings(
     name := "example",
@@ -97,12 +120,10 @@ lazy val example = (project in file("example"))
     libraryDependencies += logbackExceptionMappingProvider,
     libraryDependencies += logbackUniqueId,
     libraryDependencies += logbackTracing,
-    libraryDependencies += logbackClassic
   )
-  .dependsOn(api, semantic, fluent, logstash)
+  .dependsOn(logback).settings(disablePublishing).settings(disableDocs)
 
 lazy val root = (project in file("."))
   .settings(
     name := "blindsight-root"
-  )
-  .aggregate(docs, fixtures, api, slf4j, semantic, fluent, logstash, example)
+  ).aggregate(docs, fixtures, api, slf4j, semantic, fluent, logstash, all, logback, example)

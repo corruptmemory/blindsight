@@ -16,9 +16,9 @@
 
 package com.tersesystems.blindsight.semantic
 
-import com.tersesystems.blindsight._
-import com.tersesystems.blindsight.mixins.{SemanticMarkerMixin, SourceInfoMixin}
-import com.tersesystems.blindsight.slf4j.{LoggerPredicate, ParameterList, SLF4JLogger}
+import com.tersesystems.blindsight.api.mixins.{ParameterListMixin, PredicateMixin, SemanticMarkerMixin, SourceInfoMixin}
+import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers, ToStatement}
+import com.tersesystems.blindsight.slf4j.{SLF4JLogger, SLF4JLoggerPredicate}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
@@ -26,83 +26,72 @@ import sourcecode.{Enclosing, File, Line}
  * This trait defines an SLF4J compatible logger with all five levels of logging.
  */
 trait SemanticLogger[MessageType]
-    extends SemanticLoggerAPI[MessageType, LoggerPredicate, SemanticLoggerMethod]
+    extends SemanticLoggerAPI[MessageType, SLF4JLoggerPredicate, SemanticLoggerMethod]
+    with PredicateMixin[SLF4JLoggerPredicate]
     with SemanticMarkerMixin[MessageType]
     with SemanticRefineMixin[MessageType]
+    with ParameterListMixin
     with SourceInfoMixin {
   type Self[T] = SemanticLogger[T]
 }
 
 object SemanticLogger {
-  def apply[MessageType](logger: org.slf4j.Logger): SemanticLogger[MessageType] = {
-    SLF4JSemanticLogger(logger)
-  }
-}
 
-class SLF4JSemanticLogger[BaseType](protected val logger: SLF4JLogger, val markerState: Markers)
-    extends SemanticLogger[BaseType]
-    with SourceInfoMixin {
+  class Impl[MessageType](protected val logger: SLF4JLogger)
+      extends SemanticLogger[MessageType]
+      with SourceInfoMixin {
 
-  private val methods: Array[Method[BaseType]] = Array(
-    error,
-    warn,
-    info,
-    debug,
-    trace
-  )
+    private val methods: Array[Method[MessageType]] = Array(
+      error,
+      warn,
+      info,
+      debug,
+      trace
+    )
 
-  private val predicates: Array[Predicate] = Array(
-    isErrorEnabled,
-    isWarnEnabled,
-    isInfoEnabled,
-    isDebugEnabled,
-    isTraceEnabled
-  )
+    private val predicates: Array[Predicate] = Array(
+      isErrorEnabled,
+      isWarnEnabled,
+      isInfoEnabled,
+      isDebugEnabled,
+      isTraceEnabled
+    )
 
-  def method(level: Level): Method[BaseType] = methods(level.ordinal())
+    def method(level: Level): Method[MessageType] = methods(level.ordinal())
 
-  def predicate(level: Level): Predicate = predicates(level.ordinal())
+    def predicate(level: Level): Predicate = predicates(level.ordinal())
 
-  def parameterList(level: Level): ParameterList = logger.parameterList(level)
+    def parameterList(level: Level): ParameterList = logger.parameterList(level)
 
-  override def marker[T: ToMarkers](markerInst: T): Self[BaseType] = {
-    val markers = implicitly[ToMarkers[T]].toMarkers(markerInst)
-    new SLF4JSemanticLogger[BaseType](logger, markerState ++ markers)
-  }
+    override def marker[T: ToMarkers](markerInst: T): Self[MessageType] = {
+      val markers = implicitly[ToMarkers[T]].toMarkers(markerInst)
+      new Impl[MessageType](logger.marker(markers))
+    }
 
-  override def refine[T <: BaseType: ToStatement]: Self[T] =
-    new SLF4JSemanticLogger[T](logger, markerState)
+    override def refine[T <: MessageType: ToStatement]: Self[T] = new Impl[T](logger)
 
-  override def sourceInfoMarker(
-      level: Level,
-      line: Line,
-      file: File,
-      enclosing: Enclosing
-  ): Markers = Markers.empty
+    override def sourceInfoMarker(
+        level: Level,
+        line: Line,
+        file: File,
+        enclosing: Enclosing
+    ): Markers = logger.sourceInfoMarker(level, line, file, enclosing)
 
-  override def isTraceEnabled: Predicate = logger.predicate(Level.TRACE)
-  override def trace: Method[BaseType]   = new SLF4JSemanticLoggerMethod(Level.TRACE, this)
+    override def isTraceEnabled: Predicate = logger.predicate(Level.TRACE)
+    override def trace: Method[MessageType]   = new SemanticLoggerMethod.Impl(Level.TRACE, this)
 
-  override def isDebugEnabled: Predicate = logger.predicate(Level.DEBUG)
-  override def debug: Method[BaseType]   = new SLF4JSemanticLoggerMethod(Level.DEBUG, this)
+    override def isDebugEnabled: Predicate = logger.predicate(Level.DEBUG)
+    override def debug: Method[MessageType]   = new SemanticLoggerMethod.Impl(Level.DEBUG, this)
 
-  override def isInfoEnabled: Predicate = logger.predicate(Level.INFO)
-  override def info: Method[BaseType]   = new SLF4JSemanticLoggerMethod(Level.INFO, this)
+    override def isInfoEnabled: Predicate = logger.predicate(Level.INFO)
+    override def info: Method[MessageType]   = new SemanticLoggerMethod.Impl(Level.INFO, this)
 
-  override def isWarnEnabled: Predicate = logger.predicate(Level.WARN)
-  override def warn: Method[BaseType]   = new SLF4JSemanticLoggerMethod(Level.WARN, this)
+    override def isWarnEnabled: Predicate = logger.predicate(Level.WARN)
+    override def warn: Method[MessageType]   = new SemanticLoggerMethod.Impl(Level.WARN, this)
 
-  override def isErrorEnabled: Predicate = logger.predicate(Level.ERROR)
-  override def error: Method[BaseType]   = new SLF4JSemanticLoggerMethod(Level.ERROR, this)
+    override def isErrorEnabled: Predicate = logger.predicate(Level.ERROR)
+    override def error: Method[MessageType]   = new SemanticLoggerMethod.Impl(Level.ERROR, this)
 
-}
-
-object SLF4JSemanticLogger {
-  def apply[BaseType](logger: SLF4JLogger): SLF4JSemanticLogger[BaseType] = {
-    new SLF4JSemanticLogger[BaseType](logger, Markers.empty)
-  }
-
-  def apply[BaseType](logger: org.slf4j.Logger): SLF4JSemanticLogger[BaseType] = {
-    apply(new SLF4JLogger(logger, Markers.empty))
+    override def markerState: Markers = logger.markerState
   }
 }

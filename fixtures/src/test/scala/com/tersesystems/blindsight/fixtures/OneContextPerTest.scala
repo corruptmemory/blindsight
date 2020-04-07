@@ -10,14 +10,19 @@ import ch.qos.logback.core.Appender
 import ch.qos.logback.core.read.ListAppender
 import org.scalatest.{Outcome, TestData, TestSuite, TestSuiteMixin}
 
-trait OneContextPerTest extends TestSuiteMixin { this: TestSuite =>
+trait OneContextPerTest extends TestSuiteMixin {
+  this: TestSuite =>
 
   private var contextPerTest: LoggerContext = _
 
-  final implicit def loggerContext: LoggerContext = synchronized { contextPerTest }
+  final implicit def loggerContext: LoggerContext = synchronized {
+    contextPerTest
+  }
 
   abstract override def withFixture(test: NoArgTest): Outcome = {
-    synchronized { contextPerTest = newContextForTest(test) }
+    synchronized {
+      contextPerTest = newContextForTest(test)
+    }
     running(loggerContext) {
       super.withFixture(test)
     }
@@ -34,8 +39,8 @@ trait OneContextPerTest extends TestSuiteMixin { this: TestSuite =>
   def newContextForTest(testData: TestData): LoggerContext = createLoggerContext()
 
   def createLoggerContext(): LoggerContext = {
-    val context      = new LoggerContext
-    val resource     = getClass.getResource("/logback-test.xml")
+    val context = new LoggerContext
+    val resource = getClass.getResource("/logback-test.xml")
     val configurator = new JoranConfigurator
     configurator.setContext(context)
     configurator.doConfigure(resource)
@@ -47,6 +52,7 @@ trait OneContextPerTest extends TestSuiteMixin { this: TestSuite =>
       val appenderStream = StreamUtils.fromIterator(logger.iteratorForAppenders)
       appenderStream.findFirst
     }
+
     val maybeAppender = getFirstAppender(context.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME))
     if (maybeAppender.isPresent)
       requireNonNull(maybeAppender.get).asInstanceOf[ListAppender[ILoggingEvent]]

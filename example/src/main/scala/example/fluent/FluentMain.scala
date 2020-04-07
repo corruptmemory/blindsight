@@ -16,12 +16,10 @@
 
 package example.fluent
 
-import com.tersesystems.blindsight.fluent.FluentLogger
+import com.tersesystems.blindsight.LoggerFactory
 import com.tersesystems.blindsight.logstash.Implicits._
 
 object FluentMain {
-
-  val underlying = org.slf4j.LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {
     import com.fasterxml.jackson.databind.ObjectMapper
@@ -29,7 +27,8 @@ object FluentMain {
     val objectMapper = new ObjectMapper
     val jsonNode     = objectMapper.readTree(json)
 
-    FluentLogger(underlying).info
+    val fluent = LoggerFactory.getLogger(getClass).fluent
+    fluent.info
       .marker("string" -> "steve")
       .marker("array" -> Seq("one", "two", "three"))
       .marker("markerJson" -> jsonNode)

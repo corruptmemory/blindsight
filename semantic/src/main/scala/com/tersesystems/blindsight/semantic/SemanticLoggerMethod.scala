@@ -16,8 +16,7 @@
 
 package com.tersesystems.blindsight.semantic
 
-import com.tersesystems.blindsight._
-import com.tersesystems.blindsight.slf4j.ParameterList
+import com.tersesystems.blindsight.api.{Markers, ParameterList, Statement, ToStatement}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
@@ -34,47 +33,50 @@ trait SemanticLoggerMethod[MessageType] {
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 }
 
-class SLF4JSemanticLoggerMethod[BaseType](val level: Level, logger: SLF4JSemanticLogger[BaseType])
+object SemanticLoggerMethod {
+
+  class Impl[BaseType](val level: Level, logger: SemanticLogger[BaseType])
     extends SemanticLoggerMethod[BaseType] {
 
-  @inline
-  protected def markerState: Markers = logger.markerState
+    @inline
+    protected def markerState: Markers = logger.markerState
 
-  protected val parameterList: ParameterList = logger.parameterList(level)
+    protected val parameterList: ParameterList = logger.parameterList(level)
 
-  def isEnabled(markers: Markers): Boolean = {
-    if (markers.nonEmpty) {
-      parameterList.executePredicate(markers.marker)
-    } else {
-      parameterList.executePredicate()
+    def isEnabled(markers: Markers): Boolean = {
+      if (markers.nonEmpty) {
+        parameterList.executePredicate(markers.marker)
+      } else {
+        parameterList.executePredicate()
+      }
     }
-  }
 
-  protected def collateMarkers(
-      markers: Markers
-  )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
-    val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
-    sourceMarkers ++ markerState ++ markers
-  }
-
-  override def apply[T <: BaseType: ToStatement](
-      instance: T
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-    val statement: Statement = implicitly[ToStatement[T]].toStatement(instance)
-    val markers              = collateMarkers(statement.markers)
-    if (isEnabled(markers)) {
-      parameterList.executeStatement(statement.withMarkers(markers))
+    protected def collateMarkers(
+                                  markers: Markers
+                                )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+      val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
+      sourceMarkers ++ markerState ++ markers
     }
-  }
 
-  override def apply[T <: BaseType: ToStatement](
-      instance: T,
-      t: Throwable
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-    val statement = implicitly[ToStatement[T]].toStatement(instance)
-    val markers   = collateMarkers(statement.markers)
-    if (isEnabled(markers)) {
-      parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
+    override def apply[T <: BaseType: ToStatement](
+                                                    instance: T
+                                                  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+      val statement: Statement = implicitly[ToStatement[T]].toStatement(instance)
+      val markers              = collateMarkers(statement.markers)
+      if (isEnabled(markers)) {
+        parameterList.executeStatement(statement.withMarkers(markers))
+      }
+    }
+
+    override def apply[T <: BaseType: ToStatement](
+                                                    instance: T,
+                                                    t: Throwable
+                                                  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+      val statement = implicitly[ToStatement[T]].toStatement(instance)
+      val markers   = collateMarkers(statement.markers)
+      if (isEnabled(markers)) {
+        parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
+      }
     }
   }
 }

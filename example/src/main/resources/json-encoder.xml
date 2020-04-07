@@ -25,7 +25,7 @@
             <logLevelValue/><!-- numeric value is useful for filtering >= -->
             <stackHash/>
             <mdc/>
-            <tags/>
+            <!-- <tags/> --> <!-- non-logstash markers -->
             <logstashMarkers/>
             <arguments/>
             <provider class="com.tersesystems.logback.exceptionmapping.json.ExceptionArgumentsProvider">

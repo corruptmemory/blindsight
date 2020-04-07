@@ -16,8 +16,9 @@
 
 package example.slf4j
 
+import com.tersesystems.blindsight.api.{Arguments, Markers, ToMarkers}
+import com.tersesystems.blindsight.slf4j._
 import com.tersesystems.blindsight._
-import com.tersesystems.blindsight.slf4j.{InfoLoggerAPI, Logger}
 import org.slf4j.MarkerFactory
 
 object Slf4jMain {
@@ -31,8 +32,7 @@ object Slf4jMain {
   }
 
   def main(args: Array[String]): Unit = {
-    val underlying     = org.slf4j.LoggerFactory.getLogger(getClass)
-    val logger: Logger = Logger(underlying)
+    val logger = LoggerFactory.getLogger(getClass)
 
     val featureFlag = FeatureFlag("flag.enabled")
     if (logger.isDebugEnabled(featureFlag)) {
@@ -41,7 +41,7 @@ object Slf4jMain {
 
     logger.info("hello world")
 
-    val m1   = MarkerFactory.getMarker("M1")
+    val m1 = MarkerFactory.getMarker("M1")
 
     logger.info("a" -> "b {} {}", Arguments(42, 53))
 
@@ -49,7 +49,7 @@ object Slf4jMain {
     val base = logger.marker(m1).marker(m2)
     base.info("I should have two markers")
 
-    val onlyInfo = new InfoLoggerAPI[base.Predicate, base.Method] {
+    val onlyInfo = new SLF4JLoggerAPI.Info[base.Predicate, base.Method] {
       override type Self      = base.Self
       override type Predicate = base.Predicate
       override type Method    = base.Method

@@ -16,7 +16,7 @@
 
 package com.tersesystems.blindsight.semantic
 
-import com.tersesystems.blindsight.ToStatement
+import com.tersesystems.blindsight.api.ToStatement
 
 trait SemanticLoggerComponent[MessageType, P, M[_]] {
   type Predicate = P
@@ -32,11 +32,11 @@ trait SemanticRefineMixin[MessageType] {
 
 trait SemanticLoggerAPI[MessageType, P, M[_]]
     extends SemanticLoggerComponent[MessageType, P, M]
-    with TraceSemanticLoggerAPI[MessageType, P, M]
-    with DebugSemanticLoggerAPI[MessageType, P, M]
-    with InfoSemanticLoggerAPI[MessageType, P, M]
-    with WarnSemanticLoggerAPI[MessageType, P, M]
-    with ErrorSemanticLoggerAPI[MessageType, P, M]
+    with SemanticLoggerAPI.Trace[MessageType, P, M]
+    with SemanticLoggerAPI.Debug[MessageType, P, M]
+    with SemanticLoggerAPI.Info[MessageType, P, M]
+    with SemanticLoggerAPI.Warn[MessageType, P, M]
+    with SemanticLoggerAPI.Error[MessageType, P, M]
 
 object SemanticLoggerAPI {
   trait Proxy[BaseType, P, M[_]] extends SemanticLoggerAPI[BaseType, P, M] {
@@ -57,49 +57,51 @@ object SemanticLoggerAPI {
     override def isErrorEnabled: Predicate = logger.isErrorEnabled
     override def error: Method[BaseType]   = logger.error
   }
-}
 
-/**
- * This trait defines only "isTraceLogging" and "trace" methods.
- */
-trait TraceSemanticLoggerAPI[MessageType, P, M[_]]
-    extends SemanticLoggerComponent[MessageType, P, M] {
-  def isTraceEnabled: Predicate
-  def trace: Method[MessageType]
-}
 
-/**
- * This trait defines only "isDebugLogging" and "debug" methods.
- */
-trait DebugSemanticLoggerAPI[MessageType, P, M[_]]
+  /**
+   * This trait defines only "isTraceLogging" and "trace" methods.
+   */
+  trait Trace[MessageType, P, M[_]]
     extends SemanticLoggerComponent[MessageType, P, M] {
-  def isDebugEnabled: Predicate
-  def debug: Method[MessageType]
-}
+    def isTraceEnabled: Predicate
+    def trace: Method[MessageType]
+  }
 
-/**
- * This trait defines only "isInfoLogging" and "info" methods.
- */
-trait InfoSemanticLoggerAPI[MessageType, P, M[_]]
+  /**
+   * This trait defines only "isDebugLogging" and "debug" methods.
+   */
+  trait Debug[MessageType, P, M[_]]
     extends SemanticLoggerComponent[MessageType, P, M] {
-  def isInfoEnabled: Predicate
-  def info: Method[MessageType]
-}
+    def isDebugEnabled: Predicate
+    def debug: Method[MessageType]
+  }
 
-/**
- * This trait defines only "isWarnLogging" and "warn" methods.
- */
-trait WarnSemanticLoggerAPI[MessageType, P, M[_]]
+  /**
+   * This trait defines only "isInfoLogging" and "info" methods.
+   */
+  trait Info[MessageType, P, M[_]]
     extends SemanticLoggerComponent[MessageType, P, M] {
-  def isWarnEnabled: Predicate
-  def warn: Method[MessageType]
-}
+    def isInfoEnabled: Predicate
+    def info: Method[MessageType]
+  }
 
-/**
- * This trait defines only "isErrorLogging" and "error" methods.
- */
-trait ErrorSemanticLoggerAPI[MessageType, P, M[_]]
+  /**
+   * This trait defines only "isWarnLogging" and "warn" methods.
+   */
+  trait Warn[MessageType, P, M[_]]
     extends SemanticLoggerComponent[MessageType, P, M] {
-  def isErrorEnabled: Predicate
-  def error: Method[MessageType]
+    def isWarnEnabled: Predicate
+    def warn: Method[MessageType]
+  }
+
+  /**
+   * This trait defines only "isErrorLogging" and "error" methods.
+   */
+  trait Error[MessageType, P, M[_]]
+    extends SemanticLoggerComponent[MessageType, P, M] {
+    def isErrorEnabled: Predicate
+    def error: Method[MessageType]
+  }
+
 }

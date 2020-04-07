@@ -16,8 +16,8 @@
 
 package com.tersesystems.blindsight.logstash
 
-import com.tersesystems.blindsight.Markers
-import com.tersesystems.blindsight.mixins.SourceInfoMixin
+import com.tersesystems.blindsight.api.Markers
+import com.tersesystems.blindsight.api.mixins.SourceInfoMixin
 import net.logstash.logback.marker.Markers._
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
@@ -29,9 +29,9 @@ trait LogstashSourceInfoMixin extends SourceInfoMixin {
       file: File,
       enclosing: Enclosing
   ): Markers = {
-    val lineMarker      = append("line", line.value)
-    val fileMarker      = append("file", file.value)
-    val enclosingMarker = append("enclosing", enclosing.value)
+    val lineMarker      = append("source.line", line.value)
+    val fileMarker      = append("source.file", file.value)
+    val enclosingMarker = append("source.enclosing", enclosing.value)
     Markers(lineMarker, fileMarker, enclosingMarker)
   }
 }

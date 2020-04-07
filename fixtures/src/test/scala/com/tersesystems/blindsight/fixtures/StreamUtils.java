@@ -11,7 +11,7 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Marker;
 
-public final class StreamUtils {
+final class StreamUtils {
 
     /**
      * Returns a stream containing the marker itself and the iterator belonging to the marker.

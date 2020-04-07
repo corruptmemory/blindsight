@@ -16,14 +16,26 @@
 
 package example.flow
 
-import com.tersesystems.blindsight.{Markers, Statement, ToStatement}
+import com.tersesystems.blindsight.api.{Markers, Statement, ToStatement}
 import com.tersesystems.blindsight.slf4j.SLF4JLogger
+import com.tersesystems.blindsight.slf4j.SLF4JLogger.Impl
+import org.slf4j.Logger
+import org.slf4j.event.Level
+import sourcecode.{Enclosing, File, Line}
 
 object FlowMain {
 
+  protected class NoSourceSLF4JLogger(underlying: org.slf4j.Logger, markers: Markers = Markers.empty) extends Impl(underlying, markers) {
+    override protected def self(underlying: Logger, markerState: Markers): SLF4JLogger = {
+      new NoSourceSLF4JLogger(underlying, markerState)
+    }
+
+    override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers = Markers.empty
+  }
+
   def main(args: Array[String]): Unit = {
     val underlying = org.slf4j.LoggerFactory.getLogger(getClass)
-    val logger     = new FlowLogger(new SLF4JLogger(underlying, Markers.empty))
+    val logger     = new FlowLogger(new NoSourceSLF4JLogger(underlying))
 
     logger.info("About to execute flow")
 

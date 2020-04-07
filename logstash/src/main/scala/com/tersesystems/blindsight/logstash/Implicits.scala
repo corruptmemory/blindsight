@@ -16,7 +16,8 @@
 
 package com.tersesystems.blindsight.logstash
 
-import com.tersesystems.blindsight.{Arguments, Markers, ToArguments, ToMarkers}
+import com.tersesystems.blindsight.api
+import com.tersesystems.blindsight.api.{Arguments, Markers, ToArguments, ToMarkers}
 import net.logstash.logback.argument.{StructuredArgument, StructuredArguments}
 import net.logstash.logback.marker.{Markers => LogstashMarkers}
 
@@ -24,22 +25,22 @@ import scala.collection.JavaConverters._
 
 trait LowPriorityMarkers {
 
-  implicit val tupleStringToMarkers: ToMarkers[(String, String)] = ToMarkers {
+  implicit val tupleStringToMarkers: ToMarkers[(String, String)] = api.ToMarkers {
     case (k, v) =>
       Markers(LogstashMarkers.append(k, v))
   }
 
-  implicit val tupleBooleanToMarkers: ToMarkers[(String, Boolean)] = ToMarkers {
+  implicit val tupleBooleanToMarkers: ToMarkers[(String, Boolean)] = api.ToMarkers {
     case (k, v) =>
       Markers(LogstashMarkers.append(k, v))
   }
 
-  implicit def tupleNumericToMarkers[T: Numeric]: ToMarkers[(String, T)] = ToMarkers {
+  implicit def tupleNumericToMarkers[T: Numeric]: ToMarkers[(String, T)] = api.ToMarkers {
     case (k, v) =>
       Markers(LogstashMarkers.append(k, v))
   }
 
-  implicit def jsonToMarkers[T: ToJsonNode]: ToMarkers[(String, T)] = ToMarkers {
+  implicit def jsonToMarkers[T: ToJsonNode]: ToMarkers[(String, T)] = api.ToMarkers {
     case (k, instance) =>
       Markers {
         LogstashMarkers.defer { () =>
@@ -49,12 +50,12 @@ trait LowPriorityMarkers {
       }
   }
 
-  implicit def arrayToMarkers[T]: ToMarkers[(String, Seq[T])] = ToMarkers {
+  implicit def arrayToMarkers[T]: ToMarkers[(String, Seq[T])] = api.ToMarkers {
     case (k, v) =>
       Markers(LogstashMarkers.appendArray(k, v: _*))
   }
 
-  implicit def mapToMarkers[T]: ToMarkers[Map[String, T]] = ToMarkers { map =>
+  implicit def mapToMarkers[T]: ToMarkers[Map[String, T]] = api.ToMarkers { map =>
     Markers(LogstashMarkers.appendEntries(map.asJava))
   }
 

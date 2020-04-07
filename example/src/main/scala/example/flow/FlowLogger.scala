@@ -16,16 +16,16 @@
 
 package example.flow
 
-import com.tersesystems.blindsight._
+import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers, ToStatement}
 import com.tersesystems.blindsight.slf4j._
-import org.slf4j.MarkerFactory
+import org.slf4j.{Logger, MarkerFactory}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
-class FlowLogger(protected val logger: Logger)
-    extends LoggerAPI.Proxy[LoggerPredicate, LoggerMethod]
-    with Logger {
-  override type Parent = Logger
+class FlowLogger(protected val logger: SLF4JLogger)
+    extends SLF4JLoggerAPI.Proxy[SLF4JLoggerPredicate, SLF4JLoggerMethod]
+    with SLF4JLogger {
+  override type Parent = SLF4JLogger
   override type Self   = FlowLogger
 
   private val entryLogger = logger.marker(MarkerFactory.getMarker("ENTRY"))
@@ -63,6 +63,14 @@ class FlowLogger(protected val logger: Logger)
     new FlowLogger(logger.marker(markerInstance))
 
   override def markerState: Markers = logger.markerState
+
+  override def parameterList(level: Level): ParameterList = logger.parameterList(level)
+
+  override def predicate(level: Level): SLF4JLoggerPredicate = logger.predicate(level)
+
+  override def underlying: Logger = logger.underlying
+
+  override def onCondition(test: => Boolean): SLF4JLogger = logger.onCondition(test)
 }
 
 /**

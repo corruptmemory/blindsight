@@ -16,8 +16,7 @@
 
 package com.tersesystems.blindsight.fluent
 
-import com.tersesystems.blindsight._
-import com.tersesystems.blindsight.slf4j.ParameterList
+import com.tersesystems.blindsight.api._
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
@@ -32,89 +31,90 @@ object FluentLoggerMethod {
     def log(): Unit
     def logWithPlaceholders(): Unit
   }
-}
 
-class SLF4JFluentLoggerMethod(val level: Level, logger: SLF4JFluentLogger)
+  class Impl(val level: Level, logger: FluentLogger)
     extends FluentLoggerMethod {
 
-  protected val parameterList: ParameterList = logger.parameterList(level)
-  protected[fluent] def markerState: Markers = logger.markerState
+    protected val parameterList: ParameterList = logger.parameterList(level)
+    protected[fluent] def markerState: Markers = logger.markerState
 
-  final case class BuilderImpl(
-      mkrs: Markers,
-      m: Message,
-      args: Arguments,
-      e: Option[Throwable]
-  ) extends FluentLoggerMethod.Builder {
+    final case class BuilderImpl(
+                                  mkrs: Markers,
+                                  m: Message,
+                                  args: Arguments,
+                                  e: Option[Throwable]
+                                ) extends FluentLoggerMethod.Builder {
 
-    override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder = {
-      val moreMarkers = implicitly[ToMarkers[T]].toMarkers(instance)
-      copy(mkrs = mkrs ++ moreMarkers)
+      override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder = {
+        val moreMarkers = implicitly[ToMarkers[T]].toMarkers(instance)
+        copy(mkrs = mkrs ++ moreMarkers)
+      }
+
+      override def message[T: ToMessage](instance: => T): FluentLoggerMethod.Builder = {
+        val message = implicitly[ToMessage[T]].toMessage(instance)
+        copy(m = m + message)
+      }
+
+      override def argument[T: ToArguments](instance: => T): FluentLoggerMethod.Builder = {
+        val arguments = implicitly[ToArguments[T]].toArguments(instance)
+        copy(args = args ++ arguments)
+      }
+
+      override def cause(e: Throwable): FluentLoggerMethod.Builder = copy(e = Some(e))
+
+      override def log(): Unit = {
+        val statement = Statement(markers = mkrs, message = m, arguments = args, e)
+        apply(statement)
+      }
+
+      override def logWithPlaceholders(): Unit = {
+        val statement =
+          Statement(markers = mkrs, message = m.withPlaceHolders(args), arguments = args, e)
+        apply(statement)
+      }
     }
 
-    override def message[T: ToMessage](instance: => T): FluentLoggerMethod.Builder = {
-      val message = implicitly[ToMessage[T]].toMessage(instance)
-      copy(m = m + message)
+    object BuilderImpl {
+      def empty: BuilderImpl = BuilderImpl(Markers.empty, Message.empty, Arguments.empty, None)
     }
 
     override def argument[T: ToArguments](instance: => T): FluentLoggerMethod.Builder = {
-      val arguments = implicitly[ToArguments[T]].toArguments(instance)
-      copy(args = args ++ arguments)
+      BuilderImpl.empty.argument(instance)
     }
 
-    override def cause(e: Throwable): FluentLoggerMethod.Builder = copy(e = Some(e))
+    override def cause(e: Throwable): FluentLoggerMethod.Builder = BuilderImpl.empty.cause(e)
 
-    override def log(): Unit = {
-      val statement = Statement(markers = mkrs, message = m, arguments = args, e)
-      apply(statement)
+    override def message[T: ToMessage](instance: => T): FluentLoggerMethod.Builder = {
+      BuilderImpl.empty.message(instance)
     }
 
-    override def logWithPlaceholders(): Unit = {
-      val statement =
-        Statement(markers = mkrs, message = m.withPlaceHolders(args), arguments = args, e)
-      apply(statement)
+    override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder =
+      BuilderImpl.empty.marker(instance)
+
+    override def apply[T: ToStatement](
+                                        instance: => T
+                                      )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+      val statement = implicitly[ToStatement[T]].toStatement(instance)
+      val markers   = collateMarkers(statement.markers)
+      if (isEnabled(markers)) {
+        parameterList.executeStatement(statement.withMarkers(markers))
+      }
     }
-  }
 
-  object BuilderImpl {
-    def empty: BuilderImpl = BuilderImpl(Markers.empty, Message.empty, Arguments.empty, None)
-  }
+    protected def collateMarkers(
+                                  markers: Markers
+                                )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+      val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
+      sourceMarkers ++ markerState ++ markers
+    }
 
-  override def argument[T: ToArguments](instance: => T): FluentLoggerMethod.Builder = {
-    BuilderImpl.empty.argument(instance)
-  }
-
-  override def cause(e: Throwable): FluentLoggerMethod.Builder = BuilderImpl.empty.cause(e)
-
-  override def message[T: ToMessage](instance: => T): FluentLoggerMethod.Builder = {
-    BuilderImpl.empty.message(instance)
-  }
-
-  override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder =
-    BuilderImpl.empty.marker(instance)
-
-  override def apply[T: ToStatement](
-      instance: => T
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-    val statement = implicitly[ToStatement[T]].toStatement(instance)
-    val markers   = collateMarkers(statement.markers)
-    if (isEnabled(markers)) {
-      parameterList.executeStatement(statement.withMarkers(markers))
+    protected def isEnabled(markers: Markers): Boolean = {
+      if (markers.nonEmpty) {
+        parameterList.executePredicate(markers.marker)
+      } else {
+        parameterList.executePredicate()
+      }
     }
   }
 
-  protected def collateMarkers(
-      markers: Markers
-  )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
-    val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
-    sourceMarkers ++ markerState ++ markers
-  }
-
-  protected def isEnabled(markers: Markers): Boolean = {
-    if (markers.nonEmpty) {
-      parameterList.executePredicate(markers.marker)
-    } else {
-      parameterList.executePredicate()
-    }
-  }
 }
