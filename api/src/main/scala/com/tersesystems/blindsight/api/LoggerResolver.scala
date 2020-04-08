@@ -1,5 +1,7 @@
 package com.tersesystems.blindsight.api
 
+import org.slf4j.Logger
+
 trait LoggerResolver[T] {
   def resolveLogger(instance: T): org.slf4j.Logger
 }
@@ -17,6 +19,10 @@ trait LowPriorityLoggerResolverImplicits {
       val factory = org.slf4j.LoggerFactory.getILoggerFactory
       factory.getLogger(instance.getName)
     }
+  }
+
+  implicit val loggerToResolver: LoggerResolver[org.slf4j.Logger] = new LoggerResolver[org.slf4j.Logger] {
+    override def resolveLogger(instance: org.slf4j.Logger): Logger = instance
   }
 }
 
