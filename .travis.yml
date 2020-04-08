@@ -7,3 +7,12 @@ scala:
 branches:
   only:
     - master
+before_cache:
+  - rm -fv $HOME/.ivy2/.sbt.ivy.lock
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
+cache:
+  directories:
+    - $HOME/.cache/coursier
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
