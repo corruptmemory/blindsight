@@ -16,9 +16,9 @@
 
 package example.slf4j
 
+import com.tersesystems.blindsight._
 import com.tersesystems.blindsight.api.{Arguments, Markers, ToMarkers}
 import com.tersesystems.blindsight.slf4j._
-import com.tersesystems.blindsight._
 import org.slf4j.MarkerFactory
 
 object Slf4jMain {

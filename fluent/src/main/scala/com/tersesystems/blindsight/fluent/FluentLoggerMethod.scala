@@ -32,18 +32,17 @@ object FluentLoggerMethod {
     def logWithPlaceholders(): Unit
   }
 
-  class Impl(val level: Level, logger: FluentLogger)
-    extends FluentLoggerMethod {
+  class Impl(val level: Level, logger: FluentLogger) extends FluentLoggerMethod {
 
     protected val parameterList: ParameterList = logger.parameterList(level)
     protected[fluent] def markerState: Markers = logger.markerState
 
     final case class BuilderImpl(
-                                  mkrs: Markers,
-                                  m: Message,
-                                  args: Arguments,
-                                  e: Option[Throwable]
-                                ) extends FluentLoggerMethod.Builder {
+        mkrs: Markers,
+        m: Message,
+        args: Arguments,
+        e: Option[Throwable]
+    ) extends FluentLoggerMethod.Builder {
 
       override def marker[T: ToMarkers](instance: => T): FluentLoggerMethod.Builder = {
         val moreMarkers = implicitly[ToMarkers[T]].toMarkers(instance)
@@ -92,8 +91,8 @@ object FluentLoggerMethod {
       BuilderImpl.empty.marker(instance)
 
     override def apply[T: ToStatement](
-                                        instance: => T
-                                      )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        instance: => T
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val statement = implicitly[ToStatement[T]].toStatement(instance)
       val markers   = collateMarkers(statement.markers)
       if (isEnabled(markers)) {
@@ -102,8 +101,8 @@ object FluentLoggerMethod {
     }
 
     protected def collateMarkers(
-                                  markers: Markers
-                                )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+        markers: Markers
+    )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
       val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
       sourceMarkers ++ markerState ++ markers
     }
@@ -113,6 +112,19 @@ object FluentLoggerMethod {
         parameterList.executePredicate(markers.marker)
       } else {
         parameterList.executePredicate()
+      }
+    }
+  }
+
+  class Conditional(level: Level, test: => Boolean, logger: FluentLogger)
+      extends FluentLoggerMethod.Impl(level, logger) {
+
+    override def apply[T: ToStatement](
+        instance: => T
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+      if (test) {
+        val statement = implicitly[ToStatement[T]].toStatement(instance)
+        logger.parameterList(level).executeStatement(statement)
       }
     }
   }

@@ -58,12 +58,10 @@ object SemanticLoggerAPI {
     override def error: Method[BaseType]   = logger.error
   }
 
-
   /**
    * This trait defines only "isTraceLogging" and "trace" methods.
    */
-  trait Trace[MessageType, P, M[_]]
-    extends SemanticLoggerComponent[MessageType, P, M] {
+  trait Trace[MessageType, P, M[_]] extends SemanticLoggerComponent[MessageType, P, M] {
     def isTraceEnabled: Predicate
     def trace: Method[MessageType]
   }
@@ -71,8 +69,7 @@ object SemanticLoggerAPI {
   /**
    * This trait defines only "isDebugLogging" and "debug" methods.
    */
-  trait Debug[MessageType, P, M[_]]
-    extends SemanticLoggerComponent[MessageType, P, M] {
+  trait Debug[MessageType, P, M[_]] extends SemanticLoggerComponent[MessageType, P, M] {
     def isDebugEnabled: Predicate
     def debug: Method[MessageType]
   }
@@ -80,8 +77,7 @@ object SemanticLoggerAPI {
   /**
    * This trait defines only "isInfoLogging" and "info" methods.
    */
-  trait Info[MessageType, P, M[_]]
-    extends SemanticLoggerComponent[MessageType, P, M] {
+  trait Info[MessageType, P, M[_]] extends SemanticLoggerComponent[MessageType, P, M] {
     def isInfoEnabled: Predicate
     def info: Method[MessageType]
   }
@@ -89,8 +85,7 @@ object SemanticLoggerAPI {
   /**
    * This trait defines only "isWarnLogging" and "warn" methods.
    */
-  trait Warn[MessageType, P, M[_]]
-    extends SemanticLoggerComponent[MessageType, P, M] {
+  trait Warn[MessageType, P, M[_]] extends SemanticLoggerComponent[MessageType, P, M] {
     def isWarnEnabled: Predicate
     def warn: Method[MessageType]
   }
@@ -98,8 +93,7 @@ object SemanticLoggerAPI {
   /**
    * This trait defines only "isErrorLogging" and "error" methods.
    */
-  trait Error[MessageType, P, M[_]]
-    extends SemanticLoggerComponent[MessageType, P, M] {
+  trait Error[MessageType, P, M[_]] extends SemanticLoggerComponent[MessageType, P, M] {
     def isErrorEnabled: Predicate
     def error: Method[MessageType]
   }

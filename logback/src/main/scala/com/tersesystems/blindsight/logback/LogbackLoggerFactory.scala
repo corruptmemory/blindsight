@@ -1,12 +1,28 @@
+/*
+ * Copyright 2020 Terse Systems
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.tersesystems.blindsight.logback
 
-import com.tersesystems.blindsight.{Logger, LoggerFactory, fluent}
 import com.tersesystems.blindsight.api._
 import com.tersesystems.blindsight.fluent.FluentLogger
-import com.tersesystems.blindsight.slf4j._
 import com.tersesystems.blindsight.logstash.LogstashSourceInfoMixin
 import com.tersesystems.blindsight.semantic.SemanticLogger
-import com.tersesystems.blindsight.slf4j.SLF4JLogger.{Conditional, Impl}
+import com.tersesystems.blindsight.slf4j.SLF4JLogger.Conditional
+import com.tersesystems.blindsight.slf4j._
+import com.tersesystems.blindsight.{Logger, LoggerFactory}
 import org.slf4j
 import org.slf4j.event.Level
 
@@ -16,9 +32,10 @@ class LogbackLoggerFactory extends LoggerFactory {
     new LogbackLogger(new LogbackSLF4JLogger(underlying, Markers.empty))
   }
 
-  class LogbackLogger(protected val logger: SLF4JLogger) extends Logger
-    with SLF4JLoggerAPI.Proxy[SLF4JLoggerPredicate, SLF4JLoggerMethod]
-    with LogstashSourceInfoMixin {
+  class LogbackLogger(protected val logger: SLF4JLogger)
+      extends Logger
+      with SLF4JLoggerAPI.Proxy[SLF4JLoggerPredicate, SLF4JLoggerMethod]
+      with LogstashSourceInfoMixin {
     override type Parent = SLF4JLogger
     override type Self   = Logger
 
@@ -46,8 +63,9 @@ class LogbackLoggerFactory extends LoggerFactory {
     override def underlying: org.slf4j.Logger = logger.underlying
   }
 
-  class LogbackSLF4JLogger(underlying: org.slf4j.Logger, markers: Markers) extends SLF4JLogger.Impl(underlying, markers)
-    with LogstashSourceInfoMixin {
+  class LogbackSLF4JLogger(underlying: org.slf4j.Logger, markers: Markers)
+      extends SLF4JLogger.Impl(underlying, markers)
+      with LogstashSourceInfoMixin {
 
     override def onCondition(test: => Boolean): Self = {
       new Conditional(test, this)

@@ -8,7 +8,7 @@ import com.tersesystems.blindsight.semantic.SemanticLogger
 import com.tersesystems.blindsight.slf4j.SLF4JLogger
 import com.tersesystems.blindsight.slf4j.SLF4JLogger.Impl
 import net.logstash.logback.argument.StructuredArguments
-import net.logstash.logback.argument.StructuredArguments.{keyValue, _}
+import net.logstash.logback.argument.StructuredArguments.keyValue
 import net.logstash.logback.marker.{Markers => LogstashMarkers}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec

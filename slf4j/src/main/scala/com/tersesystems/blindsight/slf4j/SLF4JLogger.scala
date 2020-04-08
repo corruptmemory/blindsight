@@ -16,9 +16,9 @@
 
 package com.tersesystems.blindsight.slf4j
 
-import com.tersesystems.blindsight.api.mixins.{MarkerMixin, ParameterListMixin, PredicateMixin, SourceInfoMixin}
-import com.tersesystems.blindsight.api.{Arguments, Markers, ParameterList, ToMarkers, ToMessage}
-import org.slf4j.{Logger, Marker}
+import com.tersesystems.blindsight.api._
+import com.tersesystems.blindsight.api.mixins._
+import org.slf4j._
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
@@ -38,7 +38,7 @@ trait SLF4JLogger
 object SLF4JLogger {
 
   abstract class Impl(val underlying: org.slf4j.Logger, val markerState: Markers)
-    extends SLF4JLogger {
+      extends SLF4JLogger {
     override type Self      = SLF4JLogger
     override type Method    = SLF4JLoggerMethod
     override type Predicate = SLF4JLoggerPredicate
@@ -93,113 +93,45 @@ object SLF4JLogger {
     override def onCondition(test: => Boolean): Self = new Conditional(test, this)
   }
 
-  class Conditional(test: => Boolean, protected val logger: SLF4JLogger)
-    extends SLF4JLogger {
+  class Conditional(test: => Boolean, protected val logger: SLF4JLogger) extends SLF4JLogger {
     override type Self      = SLF4JLogger
     override type Method    = SLF4JLoggerMethod
     override type Predicate = logger.Predicate
 
-    def onCondition(test2: => Boolean): Self = new Conditional(test && test2, logger)
-
-    override def isTraceEnabled: Predicate = logger.isTraceEnabled
-    override def trace: Method             = new ConditionalLoggerMethod(Level.TRACE, test, logger)
-
-    override def isDebugEnabled: Predicate = logger.isDebugEnabled
-    override def debug: Method             = new ConditionalLoggerMethod(Level.DEBUG, test, logger)
-
-    override def isInfoEnabled: Predicate = logger.isInfoEnabled
-    override def info: Method             = new ConditionalLoggerMethod(Level.INFO, test, logger)
-
-    override def isWarnEnabled: Predicate = logger.isWarnEnabled
-    override def warn: Method             = new ConditionalLoggerMethod(Level.WARN, test, logger)
-
-    override def isErrorEnabled: Predicate = logger.isErrorEnabled
-    override def error: Method             = new ConditionalLoggerMethod(Level.ERROR, test, logger)
-
+    override def onCondition(test2: => Boolean): Self = new Conditional(test && test2, logger)
     override def marker[T: ToMarkers](markerInstance: T): SLF4JLogger = {
       new Conditional(test, logger.marker(markerInstance))
     }
 
+    override def isTraceEnabled: Predicate = logger.isTraceEnabled
+    override def trace: Method             = new SLF4JLoggerMethod.Conditional(Level.TRACE, test, logger)
+
+    override def isDebugEnabled: Predicate = logger.isDebugEnabled
+    override def debug: Method             = new SLF4JLoggerMethod.Conditional(Level.DEBUG, test, logger)
+
+    override def isInfoEnabled: Predicate = logger.isInfoEnabled
+    override def info: Method             = new SLF4JLoggerMethod.Conditional(Level.INFO, test, logger)
+
+    override def isWarnEnabled: Predicate = logger.isWarnEnabled
+    override def warn: Method             = new SLF4JLoggerMethod.Conditional(Level.WARN, test, logger)
+
+    override def isErrorEnabled: Predicate = logger.isErrorEnabled
+    override def error: Method             = new SLF4JLoggerMethod.Conditional(Level.ERROR, test, logger)
+
     override def markerState: Markers = logger.markerState
-    override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers = {
+    override def sourceInfoMarker(
+        level: Level,
+        line: Line,
+        file: File,
+        enclosing: Enclosing
+    ): Markers = {
       logger.sourceInfoMarker(level, line, file, enclosing)
     }
 
-    override def parameterList(level: Level): ParameterList = logger.parameterList(level)
+    override def parameterList(level: Level): ParameterList    = logger.parameterList(level)
     override def predicate(level: Level): SLF4JLoggerPredicate = logger.predicate(level)
 
     override def underlying: Logger = logger.underlying
   }
 
-  class ConditionalLoggerMethod(
-                                 val level: Level,
-                                 test: => Boolean,
-                                 logger: SLF4JLogger with ParameterListMixin
-                               ) extends SLF4JLoggerMethod {
-    protected val parameterList: ParameterList = logger.parameterList(level)
-
-    override def apply[M: ToMessage](
-                                      instance: => M)(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
-      parameterList.message(implicitly[ToMessage[M]].toMessage(instance).toString)
-    }
-
-    override def apply[M: ToMessage](instance: => M, args: Arguments)(implicit line: Line,
-                                                                      file: File,
-                                                                      enclosing: Enclosing): Unit = if (test) {
-      parameterList.messageArgs(implicitly[ToMessage[M]].toMessage(instance).toString, args.asArray)
-    }
-
-    override def apply[M: ToMessage](instance: => M, arg: Any)(implicit line: Line,
-                                                               file: File,
-                                                               enclosing: Enclosing): Unit = if (test) {
-      parameterList.messageArg1(implicitly[ToMessage[M]].toMessage(instance).toString, arg)
-    }
-
-    override def apply[M: ToMessage](instance: => M, arg1: Any, arg2: Any)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing): Unit = if (test) {
-      parameterList.messageArg1Arg2(implicitly[ToMessage[M]].toMessage(instance).toString, arg1, arg2)
-    }
-
-    override def apply[M: ToMessage](instance: => M, args: Any*)(implicit line: Line,
-                                                                 file: File,
-                                                                 enclosing: Enclosing): Unit = if (test) {
-      parameterList.messageArgs(implicitly[ToMessage[M]].toMessage(instance).toString, args)
-    }
-
-    override def apply[M: ToMessage](
-                                      marker: => Marker,
-                                      instance: => M)(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
-      parameterList.markerMessage(marker, implicitly[ToMessage[M]].toMessage(instance).toString)
-    }
-
-    override def apply[M: ToMessage](marker: => Marker, instance: => M, args: Arguments)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing): Unit = if (test) {
-      parameterList.markerMessageArgs(marker, implicitly[ToMessage[M]].toMessage(instance).toString, args.asArray)
-    }
-
-    override def apply[M: ToMessage](marker: => Marker, instance: => M, arg: Any)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing): Unit = if (test) {
-      parameterList.markerMessageArg1(marker, implicitly[ToMessage[M]].toMessage(instance).toString, arg)
-    }
-
-    override def apply[M: ToMessage](marker: => Marker, instance: => M, arg1: Any, arg2: Any)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing): Unit = if (test) {
-      parameterList.markerMessageArg1Arg2(marker, implicitly[ToMessage[M]].toMessage(instance).toString, arg1, arg2)
-    }
-
-    override def apply[M: ToMessage](marker: => Marker, instance: => M, args: Any*)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing): Unit = if (test) {
-      parameterList.markerMessageArgs(marker, implicitly[ToMessage[M]].toMessage(instance).toString, args)
-    }
-  }
 }

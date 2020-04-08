@@ -25,12 +25,20 @@ import sourcecode.{Enclosing, File, Line}
 
 object FlowMain {
 
-  protected class NoSourceSLF4JLogger(underlying: org.slf4j.Logger, markers: Markers = Markers.empty) extends Impl(underlying, markers) {
+  protected class NoSourceSLF4JLogger(
+      underlying: org.slf4j.Logger,
+      markers: Markers = Markers.empty
+  ) extends Impl(underlying, markers) {
     override protected def self(underlying: Logger, markerState: Markers): SLF4JLogger = {
       new NoSourceSLF4JLogger(underlying, markerState)
     }
 
-    override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers = Markers.empty
+    override def sourceInfoMarker(
+        level: Level,
+        line: Line,
+        file: File,
+        enclosing: Enclosing
+    ): Markers = Markers.empty
   }
 
   def main(args: Array[String]): Unit = {

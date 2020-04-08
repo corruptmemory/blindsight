@@ -75,7 +75,6 @@ object SLF4JLoggerAPI {
     def error: Method
   }
 
-
   trait Proxy[P, M] extends SLF4JLoggerAPI[P, M] {
     type Parent <: SLF4JLoggerAPI[P, M]
 

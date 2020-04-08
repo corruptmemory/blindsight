@@ -1,8 +1,7 @@
 import Dependencies._
 import de.heikoseeberger.sbtheader.HeaderPlugin
-
-import sbt._
 import sbt.Keys._
+import sbt._
 
 // https://www.scala-sbt.org/1.x/docs/Plugins.html#Creating+an+auto+plugin
 object Common extends AutoPlugin {

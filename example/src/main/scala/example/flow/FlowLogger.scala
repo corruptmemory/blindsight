@@ -18,8 +18,8 @@ package example.flow
 
 import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers, ToStatement}
 import com.tersesystems.blindsight.slf4j._
-import org.slf4j.{Logger, MarkerFactory}
 import org.slf4j.event.Level
+import org.slf4j.{Logger, MarkerFactory}
 import sourcecode.{Enclosing, File, Line}
 
 class FlowLogger(protected val logger: SLF4JLogger)

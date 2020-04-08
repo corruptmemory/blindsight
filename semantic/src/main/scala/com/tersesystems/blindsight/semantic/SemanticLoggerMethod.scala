@@ -35,8 +35,8 @@ trait SemanticLoggerMethod[MessageType] {
 
 object SemanticLoggerMethod {
 
-  class Impl[BaseType](val level: Level, logger: SemanticLogger[BaseType])
-    extends SemanticLoggerMethod[BaseType] {
+  class Impl[StatementType](val level: Level, logger: SemanticLogger[StatementType])
+      extends SemanticLoggerMethod[StatementType] {
 
     @inline
     protected def markerState: Markers = logger.markerState
@@ -52,15 +52,15 @@ object SemanticLoggerMethod {
     }
 
     protected def collateMarkers(
-                                  markers: Markers
-                                )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+        markers: Markers
+    )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
       val sourceMarkers = logger.sourceInfoMarker(level, line, file, enclosing)
       sourceMarkers ++ markerState ++ markers
     }
 
-    override def apply[T <: BaseType: ToStatement](
-                                                    instance: T
-                                                  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    override def apply[T <: StatementType: ToStatement](
+        instance: T
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val statement: Statement = implicitly[ToStatement[T]].toStatement(instance)
       val markers              = collateMarkers(statement.markers)
       if (isEnabled(markers)) {
@@ -68,13 +68,31 @@ object SemanticLoggerMethod {
       }
     }
 
-    override def apply[T <: BaseType: ToStatement](
-                                                    instance: T,
-                                                    t: Throwable
-                                                  )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    override def apply[T <: StatementType: ToStatement](
+        instance: T,
+        t: Throwable
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val statement = implicitly[ToStatement[T]].toStatement(instance)
       val markers   = collateMarkers(statement.markers)
       if (isEnabled(markers)) {
+        parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
+      }
+    }
+  }
+
+  class Conditional[StatementType](
+      level: Level,
+      test: => Boolean,
+      logger: SemanticLogger[StatementType]
+  ) extends SemanticLoggerMethod.Impl(level, logger) {
+
+    override def apply[T <: StatementType: ToStatement](
+        instance: T,
+        t: Throwable
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+      val statement = implicitly[ToStatement[T]].toStatement(instance)
+      val markers   = collateMarkers(statement.markers)
+      if (isEnabled(markers) && test) {
         parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
       }
     }

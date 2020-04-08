@@ -103,7 +103,8 @@ lazy val logback = (project in file("logback"))
   .settings(
     name := "blindsight-logback",
     libraryDependencies += logbackClassic
-  ).dependsOn(all, logstash)
+  ).dependsOn(all, fixtures, logstash)
+  .dependsOn(fixtures % "compile->compile;test->test")
 
 lazy val example = (project in file("example"))
   .settings(

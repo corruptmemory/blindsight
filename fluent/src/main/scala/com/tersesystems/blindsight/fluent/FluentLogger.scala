@@ -16,8 +16,8 @@
 
 package com.tersesystems.blindsight.fluent
 
-import com.tersesystems.blindsight.api.mixins._
 import com.tersesystems.blindsight.api._
+import com.tersesystems.blindsight.api.mixins._
 import com.tersesystems.blindsight.slf4j._
 import org.slf4j.Logger
 import org.slf4j.event.Level
@@ -94,23 +94,28 @@ object FluentLogger {
     }
 
     override def isTraceEnabled: Predicate = logger.isTraceEnabled
-    override def trace: Method             = new ConditionalFluentLoggerMethod(Level.TRACE, test, logger)
+    override def trace: Method             = new FluentLoggerMethod.Conditional(Level.TRACE, test, logger)
 
     override def isDebugEnabled: Predicate = logger.isDebugEnabled
-    override def debug: Method             = new ConditionalFluentLoggerMethod(Level.DEBUG, test, logger)
+    override def debug: Method             = new FluentLoggerMethod.Conditional(Level.DEBUG, test, logger)
 
     override def isInfoEnabled: Predicate = logger.isInfoEnabled
-    override def info: Method             = new ConditionalFluentLoggerMethod(Level.INFO, test, logger)
+    override def info: Method             = new FluentLoggerMethod.Conditional(Level.INFO, test, logger)
 
     override def isWarnEnabled: Predicate = logger.isWarnEnabled
-    override def warn: Method             = new ConditionalFluentLoggerMethod(Level.WARN, test, logger)
+    override def warn: Method             = new FluentLoggerMethod.Conditional(Level.WARN, test, logger)
 
     override def isErrorEnabled: Predicate = logger.isErrorEnabled
-    override def error: Method             = new ConditionalFluentLoggerMethod(Level.ERROR, test, logger)
+    override def error: Method             = new FluentLoggerMethod.Conditional(Level.ERROR, test, logger)
 
     override def markerState: Markers = logger.markerState
 
-    override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers = {
+    override def sourceInfoMarker(
+        level: Level,
+        line: Line,
+        file: File,
+        enclosing: Enclosing
+    ): Markers = {
       logger.sourceInfoMarker(level, line, file, enclosing)
     }
 
@@ -120,18 +125,4 @@ object FluentLogger {
 
     override def underlying: Logger = logger.underlying
   }
-
-  class ConditionalFluentLoggerMethod(level: Level, test: => Boolean, logger: FluentLogger)
-    extends FluentLoggerMethod.Impl(level, logger) {
-
-    override def apply[T: ToStatement](
-                                        instance: => T
-                                      )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
-      if (test) {
-        val statement = implicitly[ToStatement[T]].toStatement(instance)
-        logger.parameterList(level).executeStatement(statement)
-      }
-    }
-  }
-
 }

@@ -17,6 +17,7 @@
 package example.fluent
 
 import com.tersesystems.blindsight.LoggerFactory
+import com.tersesystems.blindsight.api.Statement
 import com.tersesystems.blindsight.logstash.Implicits._
 
 object FluentMain {
@@ -28,6 +29,10 @@ object FluentMain {
     val jsonNode     = objectMapper.readTree(json)
 
     val fluent = LoggerFactory.getLogger(getClass).fluent
+
+    val statement = Statement().withMessage("hello world")
+    fluent.info(statement)
+
     fluent.info
       .marker("string" -> "steve")
       .marker("array" -> Seq("one", "two", "three"))

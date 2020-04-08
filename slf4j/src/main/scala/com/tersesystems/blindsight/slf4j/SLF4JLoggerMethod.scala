@@ -29,15 +29,18 @@ trait SLF4JLoggerMethod {
   def level: Level
 
   def apply[M: ToMessage](
-      instance: => M)(implicit line: Line, file: File, enclosing: Enclosing): Unit
-
-  def apply[M: ToMessage](instance: => M,
-                          arg: Any)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+      instance: => M
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 
   def apply[M: ToMessage](
-                            format: => M,
-                            args: Arguments
-                          )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+      instance: => M,
+      arg: Any
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
+  def apply[M: ToMessage](
+      format: => M,
+      args: Arguments
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 
   def apply[M: ToMessage](instance: => M, arg1: Any, arg2: Any)(
       implicit line: Line,
@@ -45,17 +48,20 @@ trait SLF4JLoggerMethod {
       enclosing: Enclosing
   ): Unit
 
-  def apply[M: ToMessage](instance: => M,
-                          args: Any*)(implicit line: Line, file: File, enclosing: Enclosing): Unit
+  def apply[M: ToMessage](
+      instance: => M,
+      args: Any*
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 
-  def apply[M: ToMessage](marker: => Marker, message: => M)(implicit line: Line,
-                                                            file: File,
-                                                            enclosing: Enclosing): Unit
+  def apply[M: ToMessage](
+      marker: => Marker,
+      message: => M
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 
   def apply[M: ToMessage](marker: => Marker, instance: => M, args: Arguments)(
-    implicit line: Line,
-    file: File,
-    enclosing: Enclosing
+      implicit line: Line,
+      file: File,
+      enclosing: Enclosing
   ): Unit
 
   def apply[M: ToMessage](marker: => Marker, instance: => M, arg: Any)(
@@ -76,7 +82,6 @@ trait SLF4JLoggerMethod {
       enclosing: Enclosing
   ): Unit
 }
-
 
 object SLF4JLoggerMethod {
 
@@ -105,7 +110,7 @@ object SLF4JLoggerMethod {
    * with those parameters.
    */
   class Impl(val level: Level, logger: SLF4JLogger with ParameterListMixin)
-    extends SLF4JLoggerMethod {
+      extends SLF4JLoggerMethod {
 
     @inline
     protected def markerState: Markers = logger.markerState
@@ -114,7 +119,8 @@ object SLF4JLoggerMethod {
     import parameterList._
 
     override def apply[M: ToMessage](
-                                      instance: => M)(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        instance: => M
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers = collateMarkers
       if (markers.nonEmpty) {
         if (executePredicate(markers.marker)) {
@@ -130,9 +136,9 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](
-                                      format: => M,
-                                      arg: Any
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        format: => M,
+        arg: Any
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers: Markers = collateMarkers
       if (markers.nonEmpty) {
         if (executePredicate(markers.marker)) {
@@ -148,9 +154,9 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](
-                                      format: => M,
-                                      args: Arguments
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        format: => M,
+        args: Arguments
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers: Markers = collateMarkers
       if (markers.nonEmpty) {
         if (executePredicate(markers.marker)) {
@@ -165,12 +171,11 @@ object SLF4JLoggerMethod {
       }
     }
 
-
     override def apply[M: ToMessage](
-                                      format: => M,
-                                      arg1: Any,
-                                      arg2: Any
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        format: => M,
+        arg1: Any,
+        arg2: Any
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers: Markers = collateMarkers
       if (markers.nonEmpty) {
         if (executePredicate(markers.marker)) {
@@ -186,9 +191,9 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](
-                                      format: => M,
-                                      args: Any*
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        format: => M,
+        args: Any*
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers = collateMarkers
       if (markers.nonEmpty) {
         if (executePredicate(markers.marker)) {
@@ -204,9 +209,9 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](
-                                      marker: => Marker,
-                                      messageInstance: => M
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        marker: => Marker,
+        messageInstance: => M
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers = collateMarkers(marker)
       if (executePredicate(markers.marker)) {
         val message1 = implicitly[ToMessage[M]].toMessage(messageInstance)
@@ -215,9 +220,9 @@ object SLF4JLoggerMethod {
     }
 
     def apply[M: ToMessage](marker: => Marker, instance: => M, args: Arguments)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing
+        implicit line: Line,
+        file: File,
+        enclosing: Enclosing
     ): Unit = {
       val markers = collateMarkers(marker)
       if (executePredicate(markers.marker)) {
@@ -227,10 +232,10 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](
-                                      marker: => Marker,
-                                      format: => M,
-                                      arg: Any
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        marker: => Marker,
+        format: => M,
+        arg: Any
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers = collateMarkers(marker)
       if (executePredicate(markers.marker)) {
         val message1 = implicitly[ToMessage[M]].toMessage(format)
@@ -239,9 +244,9 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](marker: => Marker, format: => M, arg1: Any, arg2: Any)(
-      implicit line: Line,
-      file: File,
-      enclosing: Enclosing
+        implicit line: Line,
+        file: File,
+        enclosing: Enclosing
     ): Unit = {
       val markers = collateMarkers(marker)
       if (executePredicate(markers.marker)) {
@@ -251,10 +256,10 @@ object SLF4JLoggerMethod {
     }
 
     override def apply[M: ToMessage](
-                                      marker: => Marker,
-                                      format: => M,
-                                      args: Any*
-                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+        marker: => Marker,
+        format: => M,
+        args: Any*
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers = collateMarkers(marker)
       if (executePredicate(markers.marker)) {
         val message1 = implicitly[ToMessage[M]].toMessage(format)
@@ -268,11 +273,104 @@ object SLF4JLoggerMethod {
     }
 
     private def collateMarkers(
-                                marker: Marker
-                              )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
+        marker: Marker
+    )(implicit line: Line, file: File, enclosing: Enclosing): Markers = {
       collateMarkers + marker
     }
 
   }
 
+  class Conditional(
+      val level: Level,
+      test: => Boolean,
+      logger: SLF4JLogger
+  ) extends SLF4JLoggerMethod {
+    protected val parameterList: ParameterList = logger.parameterList(level)
+
+    override def apply[M: ToMessage](
+        instance: => M
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList.message(implicitly[ToMessage[M]].toMessage(instance).toString)
+    }
+
+    override def apply[M: ToMessage](
+        instance: => M,
+        args: Arguments
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList.messageArgs(implicitly[ToMessage[M]].toMessage(instance).toString, args.asArray)
+    }
+
+    override def apply[M: ToMessage](
+        instance: => M,
+        arg: Any
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList.messageArg1(implicitly[ToMessage[M]].toMessage(instance).toString, arg)
+    }
+
+    override def apply[M: ToMessage](
+        instance: => M,
+        arg1: Any,
+        arg2: Any
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList
+        .messageArg1Arg2(implicitly[ToMessage[M]].toMessage(instance).toString, arg1, arg2)
+    }
+
+    override def apply[M: ToMessage](
+        instance: => M,
+        args: Any*
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList.messageArgs(implicitly[ToMessage[M]].toMessage(instance).toString, args)
+    }
+
+    override def apply[M: ToMessage](
+        marker: => Marker,
+        instance: => M
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList.markerMessage(marker, implicitly[ToMessage[M]].toMessage(instance).toString)
+    }
+
+    override def apply[M: ToMessage](
+        marker: => Marker,
+        instance: => M,
+        args: Arguments
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList.markerMessageArgs(
+        marker,
+        implicitly[ToMessage[M]].toMessage(instance).toString,
+        args.asArray
+      )
+    }
+
+    override def apply[M: ToMessage](
+        marker: => Marker,
+        instance: => M,
+        arg: Any
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList
+        .markerMessageArg1(marker, implicitly[ToMessage[M]].toMessage(instance).toString, arg)
+    }
+
+    override def apply[M: ToMessage](marker: => Marker, instance: => M, arg1: Any, arg2: Any)(
+        implicit line: Line,
+        file: File,
+        enclosing: Enclosing
+    ): Unit = if (test) {
+      parameterList.markerMessageArg1Arg2(
+        marker,
+        implicitly[ToMessage[M]].toMessage(instance).toString,
+        arg1,
+        arg2
+      )
+    }
+
+    override def apply[M: ToMessage](
+        marker: => Marker,
+        instance: => M,
+        args: Any*
+    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
+      parameterList
+        .markerMessageArgs(marker, implicitly[ToMessage[M]].toMessage(instance).toString, args)
+    }
+  }
 }

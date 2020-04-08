@@ -22,7 +22,8 @@ import com.tersesystems.blindsight.semantic.SemanticLogger
 object SemanticMain {
 
   def main(args: Array[String]): Unit = {
-    val userEventLogger: SemanticLogger[UserEvent] = LoggerFactory.getLogger(getClass).refine[UserEvent]
+    val userEventLogger: SemanticLogger[UserEvent] =
+      LoggerFactory.getLogger(getClass).refine[UserEvent]
     userEventLogger.info(UserLoggedInEvent("steve", "127.0.0.1"))
     userEventLogger.info(UserLoggedOutEvent("steve", "timeout"))
 

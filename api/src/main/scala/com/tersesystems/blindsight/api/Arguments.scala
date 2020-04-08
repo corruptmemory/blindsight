@@ -28,7 +28,8 @@ final class Arguments(private val elements: Seq[Any]) {
 }
 
 object Arguments {
-  implicit val argumentsToArguments: ToArguments[Arguments] = ToArguments((instance: Arguments) => instance)
+  implicit val argumentsToArguments: ToArguments[Arguments] =
+    ToArguments((instance: Arguments) => instance)
 
   def empty: Arguments            = Arguments()
   def apply(els: Any*): Arguments = new Arguments(els.toSeq)

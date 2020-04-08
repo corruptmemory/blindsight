@@ -8,11 +8,11 @@ import com.tersesystems.blindsight.fluent.FluentLogger
 import com.tersesystems.blindsight.slf4j.SLF4JLogger
 import com.tersesystems.blindsight.slf4j.SLF4JLogger.Impl
 import net.logstash.logback.argument.StructuredArgument
+import net.logstash.logback.argument.StructuredArguments.{keyValue, kv}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import net.logstash.logback.argument.StructuredArguments.{keyValue, kv}
-import org.slf4j.{Logger, MarkerFactory}
 import org.slf4j.event.Level
+import org.slf4j.{Logger, MarkerFactory}
 import sourcecode.{Enclosing, File, Line}
 
 class FluentLoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {

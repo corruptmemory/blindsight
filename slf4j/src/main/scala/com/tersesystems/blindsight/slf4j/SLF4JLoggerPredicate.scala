@@ -49,7 +49,8 @@ object SLF4JLoggerPredicate {
   /**
    * This class does the work of calling the predicate methods on SLF4J: no-args and marker essentially.
    */
-  class Impl(val level: Level, logger: SLF4JLogger with ParameterListMixin) extends SLF4JLoggerPredicate {
+  class Impl(val level: Level, logger: SLF4JLogger with ParameterListMixin)
+      extends SLF4JLoggerPredicate {
     protected val parameterList: ParameterList = logger.parameterList(level)
 
     override def apply(): Boolean = {

@@ -16,8 +16,6 @@
 
 package com.tersesystems.blindsight.api
 
-import org.slf4j.Marker
-
 final case class Statement(
     markers: Markers,
     message: Message,
@@ -46,8 +44,11 @@ object Statement {
 
   def apply(): Statement = Statement(Markers.empty, Message.empty, Arguments.empty, None)
 
-  implicit val markersToStatement: ToStatement[Markers] = ToStatement(instance => instance.toStatement)
-  implicit val argumentsToStatement: ToStatement[Arguments] = ToStatement(instance => instance.toStatement)
-  implicit val messageToStatement: ToStatement[Message] = ToStatement(instance => instance.toStatement)
+  implicit val markersToStatement: ToStatement[Markers] =
+    ToStatement(instance => instance.toStatement)
+  implicit val argumentsToStatement: ToStatement[Arguments] =
+    ToStatement(instance => instance.toStatement)
+  implicit val messageToStatement: ToStatement[Message] =
+    ToStatement(instance => instance.toStatement)
 
 }
