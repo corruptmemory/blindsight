@@ -1,0 +1,9 @@
+jdk:
+  - openjdk8
+  - openjdk11
+language: scala
+scala:
+  - 2.13.1
+branches:
+  only:
+    - master
