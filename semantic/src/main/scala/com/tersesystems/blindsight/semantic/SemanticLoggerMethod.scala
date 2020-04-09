@@ -38,7 +38,7 @@ trait SemanticLoggerMethod[StatementType] {
 
 object SemanticLoggerMethod {
 
-  class Impl[StatementType](val level: Level, logger: SemanticLogger[StatementType])
+  class Impl[StatementType](val level: Level, logger: ExtendedSemanticLogger[StatementType])
       extends SemanticLoggerMethod[StatementType] {
 
     @inline
@@ -93,7 +93,7 @@ object SemanticLoggerMethod {
   class Conditional[StatementType](
       level: Level,
       test: => Boolean,
-      logger: SemanticLogger[StatementType]
+      logger: ExtendedSemanticLogger[StatementType]
   ) extends SemanticLoggerMethod.Impl(level, logger) {
 
     override def when(condition: => Boolean)(

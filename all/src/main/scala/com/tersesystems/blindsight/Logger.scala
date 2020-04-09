@@ -22,7 +22,6 @@ import com.tersesystems.blindsight.semantic.SemanticLogger
 import com.tersesystems.blindsight.slf4j.SLF4JLogger
 
 trait Logger extends SLF4JLogger {
-  def underlying: org.slf4j.Logger
   def fluent: FluentLogger
   def refine[MessageType]: SemanticLogger[MessageType]
 }

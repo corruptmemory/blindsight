@@ -21,7 +21,7 @@ import com.tersesystems.blindsight.api.{Markers, ToMarkers}
 trait MarkerMixin {
   type Self
 
-  def marker[T: ToMarkers](markerInstance: T): Self
+  def withMarker[T: ToMarkers](markerInstance: T): Self
 
-  def markerState: Markers
+  def markers: Markers
 }

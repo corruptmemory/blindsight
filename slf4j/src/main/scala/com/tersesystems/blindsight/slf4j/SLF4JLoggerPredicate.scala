@@ -16,7 +16,6 @@
 
 package com.tersesystems.blindsight.slf4j
 
-import com.tersesystems.blindsight.api.mixins.ParameterListMixin
 import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers}
 import org.slf4j.event.Level
 
@@ -49,20 +48,20 @@ object SLF4JLoggerPredicate {
   /**
    * This class does the work of calling the predicate methods on SLF4J: no-args and marker essentially.
    */
-  class Impl(val level: Level, logger: SLF4JLogger with ParameterListMixin)
+  class Impl(val level: Level, logger: ExtendedSLF4JLogger)
       extends SLF4JLoggerPredicate {
     protected val parameterList: ParameterList = logger.parameterList(level)
 
     override def apply(): Boolean = {
-      if (logger.markerState.nonEmpty)
-        executePredicate(logger.markerState)
+      if (logger.markers.nonEmpty)
+        executePredicate(logger.markers)
       else
         executePredicate
     }
 
     override def apply[T: ToMarkers](instance: T): Boolean = {
       val markers = implicitly[ToMarkers[T]].toMarkers(instance)
-      executePredicate(logger.markerState ++ markers)
+      executePredicate(logger.markers ++ markers)
     }
 
     protected def executePredicate(markers: Markers): Boolean = {

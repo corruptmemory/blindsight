@@ -22,14 +22,14 @@ import org.slf4j.event.Level
 import org.slf4j.{Logger, MarkerFactory}
 import sourcecode.{Enclosing, File, Line}
 
-class FlowLogger(protected val logger: SLF4JLogger)
+class FlowLogger(protected val logger: ExtendedSLF4JLogger)
     extends SLF4JLoggerAPI.Proxy[SLF4JLoggerPredicate, SLF4JLoggerMethod]
-    with SLF4JLogger {
+    with ExtendedSLF4JLogger {
   override type Parent = SLF4JLogger
   override type Self   = FlowLogger
 
-  private val entryLogger = logger.marker(MarkerFactory.getMarker("ENTRY"))
-  private val exitLogger  = logger.marker(MarkerFactory.getMarker("EXIT"))
+  private val entryLogger = logger.withMarker(MarkerFactory.getMarker("ENTRY"))
+  private val exitLogger  = logger.withMarker(MarkerFactory.getMarker("EXIT"))
 
   def entry: LoggerFlowMethod = {
     new LoggerFlowMethod {
@@ -59,10 +59,10 @@ class FlowLogger(protected val logger: SLF4JLogger)
       enclosing: Enclosing
   ): Markers = Markers.empty
 
-  override def marker[T: ToMarkers](markerInstance: T) =
-    new FlowLogger(logger.marker(markerInstance))
+  override def withMarker[T: ToMarkers](markerInstance: T) =
+    new FlowLogger(logger.withMarker(markerInstance).asInstanceOf[ExtendedSLF4JLogger])
 
-  override def markerState: Markers = logger.markerState
+  override def markers: Markers = logger.markers
 
   override def parameterList(level: Level): ParameterList = logger.parameterList(level)
 

@@ -36,14 +36,14 @@ object FluentLoggerMethod {
     def logWithPlaceholders(): Unit
   }
 
-  class Impl(val level: Level, logger: FluentLogger) extends FluentLoggerMethod {
+  class Impl(val level: Level, logger: ExtendedFluentLogger) extends FluentLoggerMethod {
 
     protected val parameterList: ParameterList = logger.parameterList(level)
 
-    def markerState: Markers = logger.markerState
+    def markerState: Markers = logger.markers
 
     def when(condition: => Boolean)(block: FluentLoggerMethod => Unit): Unit = {
-      if (condition && isEnabled(collateMarkers(logger.markerState))) {
+      if (condition && isEnabled(collateMarkers(logger.markers))) {
         block(this)
       }
     }
@@ -127,11 +127,11 @@ object FluentLoggerMethod {
     }
   }
 
-  class Conditional(level: Level, test: => Boolean, logger: FluentLogger)
+  class Conditional(level: Level, test: => Boolean, logger: ExtendedFluentLogger)
       extends FluentLoggerMethod.Impl(level, logger) {
 
     override def when(condition: => Boolean)(block: FluentLoggerMethod => Unit): Unit = {
-      if (test && condition && isEnabled(collateMarkers(logger.markerState))) {
+      if (test && condition && isEnabled(collateMarkers(logger.markers))) {
         block(this)
       }
     }

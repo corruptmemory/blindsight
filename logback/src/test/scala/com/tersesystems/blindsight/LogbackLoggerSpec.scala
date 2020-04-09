@@ -27,7 +27,7 @@ class LogbackLoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest
 
       logger.onCondition(1 == 0).info("this is a conditional message")
 
-      logger.marker("a" -> "b").info("I have a marker")
+      logger.withMarker("a" -> "b").info("I have a marker")
     }
   }
 

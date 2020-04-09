@@ -139,7 +139,7 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
       "call with no arguments" in {
         val nomarkerLogger        = new NoSourceSLF4JLogger(loggerContext.getLogger("testing"))
         val marker                = MarkerFactory.getDetachedMarker("DENY_MARKER")
-        val loggerWithStateMarker = nomarkerLogger.marker(marker)
+        val loggerWithStateMarker = nomarkerLogger.withMarker(marker)
 
         // We were true before, so if false it's because the DENY_MARKER was hit
         loggerWithStateMarker.isDebugEnabled() must be(false)
@@ -148,7 +148,7 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
       "call with marker argument" in {
         val nomarkerLogger        = new NoSourceSLF4JLogger(loggerContext.getLogger("testing"))
         val marker                = MarkerFactory.getDetachedMarker("DENY_MARKER")
-        val loggerWithStateMarker = nomarkerLogger.marker(marker)
+        val loggerWithStateMarker = nomarkerLogger.withMarker(marker)
 
         val childMarker = MarkerFactory.getDetachedMarker("CHILD_MARKER")
 
@@ -163,7 +163,7 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
         val nomarkerLogger = new NoSourceSLF4JLogger(loggerContext.getLogger("testing"))
 
         val marker                = MarkerFactory.getDetachedMarker("MARKER")
-        val loggerWithStateMarker = nomarkerLogger.marker(marker)
+        val loggerWithStateMarker = nomarkerLogger.withMarker(marker)
 
         // No explicit marker...
         loggerWithStateMarker.debug("hello world", 42)
@@ -177,7 +177,7 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
         val nomarkerLogger = new NoSourceSLF4JLogger(loggerContext.getLogger("testing"))
 
         val marker1               = MarkerFactory.getDetachedMarker("MARKER1")
-        val loggerWithStateMarker = nomarkerLogger.marker(marker1)
+        val loggerWithStateMarker = nomarkerLogger.withMarker(marker1)
 
         // No explicit marker...
         val marker2 = MarkerFactory.getDetachedMarker("MARKER2")
@@ -193,7 +193,7 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
         val nomarkerLogger = new NoSourceSLF4JLogger(loggerContext.getLogger("testing"))
 
         val marker1               = MarkerFactory.getDetachedMarker("MARKER1")
-        val loggerWithStateMarker = nomarkerLogger.marker(marker1)
+        val loggerWithStateMarker = nomarkerLogger.withMarker(marker1)
 
         // No explicit marker...
         val marker2 = MarkerFactory.getDetachedMarker("MARKER2")
@@ -212,7 +212,7 @@ class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
         val nomarkerLogger = new NoSourceSLF4JLogger(loggerContext.getLogger("testing"))
 
         val marker1               = MarkerFactory.getDetachedMarker("MARKER1")
-        val loggerWithStateMarker = nomarkerLogger.marker(marker1)
+        val loggerWithStateMarker = nomarkerLogger.withMarker(marker1)
 
         // No explicit marker...
         val marker2 = MarkerFactory.getDetachedMarker("MARKER2")

@@ -16,9 +16,9 @@
 
 package com.tersesystems.blindsight.semantic
 
-import com.tersesystems.blindsight.api.mixins.{OnConditionMixin, ParameterListMixin, PredicateMixin, SemanticMarkerMixin, SourceInfoMixin, UnderlyingMixin}
+import com.tersesystems.blindsight.api.mixins._
 import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers, ToStatement}
-import com.tersesystems.blindsight.slf4j.{SLF4JLogger, SLF4JLoggerPredicate}
+import com.tersesystems.blindsight.slf4j.{ExtendedSLF4JLogger, SLF4JLoggerPredicate}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
@@ -27,21 +27,26 @@ import sourcecode.{Enclosing, File, Line}
  */
 trait SemanticLogger[StatementType]
     extends SemanticLoggerAPI[StatementType, SLF4JLoggerPredicate, SemanticLoggerMethod]
-    with PredicateMixin[SLF4JLoggerPredicate]
     with SemanticMarkerMixin[StatementType]
     with SemanticRefineMixin[StatementType]
-    with UnderlyingMixin
-    with ParameterListMixin
-    with SourceInfoMixin {
+ {
   type Self[T] = SemanticLogger[T]
 
   def onCondition(test: => Boolean): Self[StatementType]
 }
 
+// An extended trait with hooks for implementing methods and predicates.
+trait ExtendedSemanticLogger[StatementType]
+  extends SemanticLogger[StatementType]
+    with PredicateMixin[SLF4JLoggerPredicate]
+    with UnderlyingMixin
+    with ParameterListMixin
+    with SourceInfoMixin
+
 object SemanticLogger {
 
-  class Impl[StatementType](protected val logger: SLF4JLogger)
-      extends SemanticLogger[StatementType]
+  class Impl[StatementType](protected val logger: ExtendedSLF4JLogger)
+      extends ExtendedSemanticLogger[StatementType]
       with SourceInfoMixin {
 
     private val methods: Array[Method[StatementType]] = Array(
@@ -68,7 +73,7 @@ object SemanticLogger {
 
     override def marker[T: ToMarkers](markerInst: T): Self[StatementType] = {
       val markers = implicitly[ToMarkers[T]].toMarkers(markerInst)
-      new Impl[StatementType](logger.marker(markers))
+      new Impl[StatementType](logger.withMarker(markers).asInstanceOf[ExtendedSLF4JLogger])
     }
 
     override def refine[T <: StatementType: ToStatement]: Self[T] = new Impl[T](logger)
@@ -99,23 +104,23 @@ object SemanticLogger {
     override def isErrorEnabled: Predicate    = logger.predicate(Level.ERROR)
     override def error: Method[StatementType] = new SemanticLoggerMethod.Impl(Level.ERROR, this)
 
-    override def markerState: Markers = logger.markerState
+    override def markerState: Markers = logger.markers
 
     override def underlying: org.slf4j.Logger = logger.underlying
   }
 
-  class Conditional[StatementType](test: => Boolean, logger: SemanticLogger[StatementType])
-      extends SemanticLogger[StatementType] {
+  class Conditional[StatementType](test: => Boolean, logger: ExtendedSemanticLogger[StatementType])
+      extends ExtendedSemanticLogger[StatementType] {
     override type Self[T]   = SemanticLogger[T]
     override type Method[T] = SemanticLoggerMethod[T]
     override type Predicate = SLF4JLoggerPredicate
 
     override def marker[T: ToMarkers](markerInstance: T): Self[StatementType] = {
-      new Conditional(test, logger.marker(markerInstance))
+      new Conditional(test, logger.marker(markerInstance).asInstanceOf[ExtendedSemanticLogger[StatementType]])
     }
 
     override def refine[T <: StatementType: ToStatement]: Self[T] = {
-      new Conditional[T](test, logger.asInstanceOf[SemanticLogger[T]])
+      new Conditional[T](test, logger.asInstanceOf[ExtendedSemanticLogger[T]])
     }
 
     override def onCondition(test2: => Boolean): Self[StatementType] = {

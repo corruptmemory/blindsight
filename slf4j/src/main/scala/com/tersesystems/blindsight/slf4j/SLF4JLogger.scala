@@ -25,18 +25,23 @@ import sourcecode.{Enclosing, File, Line}
 trait SLF4JLogger
     extends SLF4JLoggerAPI[SLF4JLoggerPredicate, SLF4JLoggerMethod]
     with MarkerMixin
-    with SourceInfoMixin
     with UnderlyingMixin
-    with OnConditionMixin
-    with ParameterListMixin
-    with PredicateMixin[SLF4JLoggerPredicate] {
+    with OnConditionMixin {
   override type Self <: SLF4JLogger
 }
 
+// Extend with traits that are needed for the implementation, but may not be useful
+// for end users
+trait ExtendedSLF4JLogger
+  extends SLF4JLogger
+    with SourceInfoMixin
+    with ParameterListMixin
+    with PredicateMixin[SLF4JLoggerPredicate]
+
 object SLF4JLogger {
 
-  abstract class Impl(val underlying: org.slf4j.Logger, val markerState: Markers)
-      extends SLF4JLogger {
+  abstract class Impl(val underlying: org.slf4j.Logger, val markers: Markers)
+      extends ExtendedSLF4JLogger {
     override type Self      = SLF4JLogger
     override type Method    = SLF4JLoggerMethod
     override type Predicate = SLF4JLoggerPredicate
@@ -81,9 +86,9 @@ object SLF4JLogger {
     override def isErrorEnabled: Predicate = new SLF4JLoggerPredicate.Impl(Level.ERROR, this)
     override def error: Method             = new SLF4JLoggerMethod.Impl(Level.ERROR, this)
 
-    override def marker[T: ToMarkers](markerInst: T): Self = {
+    override def withMarker[T: ToMarkers](markerInst: T): Self = {
       val markers = implicitly[ToMarkers[T]].toMarkers(markerInst)
-      self(underlying, markerState ++ markers)
+      self(underlying, markers ++ markers)
     }
 
     protected def self(underlying: org.slf4j.Logger, markerState: Markers): Self
@@ -91,14 +96,14 @@ object SLF4JLogger {
     override def onCondition(test: => Boolean): Self = new Conditional(test, this)
   }
 
-  class Conditional(test: => Boolean, protected val logger: SLF4JLogger) extends SLF4JLogger {
+  class Conditional(test: => Boolean, protected val logger: ExtendedSLF4JLogger) extends ExtendedSLF4JLogger {
     override type Self      = SLF4JLogger
     override type Method    = SLF4JLoggerMethod
     override type Predicate = logger.Predicate
 
     override def onCondition(test2: => Boolean): Self = new Conditional(test && test2, logger)
-    override def marker[T: ToMarkers](markerInstance: T): SLF4JLogger = {
-      new Conditional(test, logger.marker(markerInstance))
+    override def withMarker[T: ToMarkers](markerInstance: T): SLF4JLogger = {
+      new Conditional(test, logger.withMarker(markerInstance).asInstanceOf[ExtendedSLF4JLogger])
     }
 
     override def isTraceEnabled: Predicate = logger.isTraceEnabled
@@ -116,7 +121,8 @@ object SLF4JLogger {
     override def isErrorEnabled: Predicate = logger.isErrorEnabled
     override def error: Method             = new SLF4JLoggerMethod.Conditional(Level.ERROR, test, logger)
 
-    override def markerState: Markers = logger.markerState
+    override def markers: Markers = logger.markers
+
     override def sourceInfoMarker(
         level: Level,
         line: Line,

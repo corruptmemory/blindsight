@@ -16,7 +16,6 @@
 
 package com.tersesystems.blindsight.slf4j
 
-import com.tersesystems.blindsight.api.mixins.ParameterListMixin
 import com.tersesystems.blindsight.api.{Arguments, Markers, ParameterList, ToMessage}
 import org.slf4j.Marker
 import org.slf4j.event.Level
@@ -87,35 +86,15 @@ trait SLF4JLoggerMethod {
 
 object SLF4JLoggerMethod {
 
-  trait Trace extends SLF4JLoggerMethod {
-    def level: Level = Level.TRACE
-  }
-
-  trait Debug extends SLF4JLoggerMethod {
-    def level: Level = Level.DEBUG
-  }
-
-  trait Info extends SLF4JLoggerMethod {
-    def level: Level = Level.INFO
-  }
-
-  trait Warn extends SLF4JLoggerMethod {
-    def level: Level = Level.WARN
-  }
-
-  trait Error extends SLF4JLoggerMethod {
-    def level: Level = Level.ERROR
-  }
-
   /**
    * This class does the work of taking various input parameters, and determining what SLF4J method to call
    * with those parameters.
    */
-  class Impl(val level: Level, logger: SLF4JLogger with ParameterListMixin)
+  class Impl(val level: Level, logger: ExtendedSLF4JLogger)
       extends SLF4JLoggerMethod {
 
     @inline
-    protected def markerState: Markers = logger.markerState
+    protected def markerState: Markers = logger.markers
 
     protected val parameterList: ParameterList = logger.parameterList(level)
     import parameterList._
@@ -290,7 +269,7 @@ object SLF4JLoggerMethod {
   class Conditional(
       val level: Level,
       test: => Boolean,
-      logger: SLF4JLogger
+      logger: ExtendedSLF4JLogger
   ) extends SLF4JLoggerMethod {
     protected val parameterList: ParameterList = logger.parameterList(level)
 

@@ -56,6 +56,7 @@ class FluentLoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest 
     val underlying = loggerContext.getLogger("logger")
 
     val fluentLogger: FluentLogger = new FluentLogger.Impl(new NoSourceSLF4JLogger(underlying))
+
     fluentLogger.info.cause(new Exception("exception")).log()
 
     val event = listAppender.list.get(0)

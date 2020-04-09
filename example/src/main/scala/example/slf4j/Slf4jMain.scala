@@ -50,7 +50,7 @@ object Slf4jMain {
     logger.info("a" -> "b {} {}", Arguments(42, 53))
 
     val m2   = MarkerFactory.getMarker("M2")
-    val base = logger.marker(m1).marker(m2)
+    val base = logger.withMarker(m1).withMarker(m2)
     base.info("I should have two markers")
 
     val onlyInfo = new SLF4JLoggerAPI.Info[base.Predicate, base.Method] {

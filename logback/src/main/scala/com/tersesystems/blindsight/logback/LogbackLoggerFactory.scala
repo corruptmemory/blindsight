@@ -32,7 +32,7 @@ class LogbackLoggerFactory extends LoggerFactory {
     new LogbackLogger(new LogbackSLF4JLogger(underlying, Markers.empty))
   }
 
-  class LogbackLogger(protected val logger: SLF4JLogger)
+  class LogbackLogger(protected val logger: ExtendedSLF4JLogger)
       extends Logger
       with SLF4JLoggerAPI.Proxy[SLF4JLoggerPredicate, SLF4JLoggerMethod]
       with LogstashSourceInfoMixin {
@@ -48,17 +48,13 @@ class LogbackLoggerFactory extends LoggerFactory {
     }
 
     override def onCondition(test: => Boolean): Self = {
-      new LogbackLogger(logger.onCondition(test))
+      new LogbackLogger(logger.onCondition(test).asInstanceOf[ExtendedSLF4JLogger])
     }
 
-    override def marker[T: ToMarkers](markerInstance: T): Self =
-      new LogbackLogger(logger.marker(markerInstance))
+    override def withMarker[T: ToMarkers](markerInstance: T): Self =
+      new LogbackLogger(logger.withMarker(markerInstance).asInstanceOf[ExtendedSLF4JLogger])
 
-    override def markerState: Markers = logger.markerState
-
-    override def parameterList(level: Level): ParameterList = logger.parameterList(level)
-
-    override def predicate(level: Level): SLF4JLoggerPredicate = logger.predicate(level)
+    override def markers: Markers = logger.markers
 
     override def underlying: org.slf4j.Logger = logger.underlying
   }
@@ -71,9 +67,9 @@ class LogbackLoggerFactory extends LoggerFactory {
       new Conditional(test, this)
     }
 
-    override def marker[T: ToMarkers](markerInst: T): Self = {
+    override def withMarker[T: ToMarkers](markerInst: T): Self = {
       val markers = implicitly[ToMarkers[T]].toMarkers(markerInst)
-      self(underlying, markerState ++ markers)
+      self(underlying, markers ++ markers)
     }
 
     override protected def self(underlying: slf4j.Logger, markerState: Markers): SLF4JLogger = {
