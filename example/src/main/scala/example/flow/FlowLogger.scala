@@ -70,7 +70,7 @@ class FlowLogger(protected val logger: SLF4JLogger)
 
   override def underlying: Logger = logger.underlying
 
-  override def onCondition(test: => Boolean): SLF4JLogger = logger.onCondition(test)
+  override def onCondition(test: => Boolean): FlowLogger = new FlowLogger(logger)
 }
 
 /**

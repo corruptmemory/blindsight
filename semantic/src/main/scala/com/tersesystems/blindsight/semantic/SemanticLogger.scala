@@ -16,7 +16,7 @@
 
 package com.tersesystems.blindsight.semantic
 
-import com.tersesystems.blindsight.api.mixins.{ParameterListMixin, PredicateMixin, SemanticMarkerMixin, SourceInfoMixin}
+import com.tersesystems.blindsight.api.mixins.{OnConditionMixin, ParameterListMixin, PredicateMixin, SemanticMarkerMixin, SourceInfoMixin, UnderlyingMixin}
 import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers, ToStatement}
 import com.tersesystems.blindsight.slf4j.{SLF4JLogger, SLF4JLoggerPredicate}
 import org.slf4j.event.Level
@@ -30,14 +30,12 @@ trait SemanticLogger[StatementType]
     with PredicateMixin[SLF4JLoggerPredicate]
     with SemanticMarkerMixin[StatementType]
     with SemanticRefineMixin[StatementType]
+    with UnderlyingMixin
     with ParameterListMixin
     with SourceInfoMixin {
+  type Self[T] = SemanticLogger[T]
 
   def onCondition(test: => Boolean): Self[StatementType]
-
-  def underlying: org.slf4j.Logger
-
-  type Self[T] = SemanticLogger[T]
 }
 
 object SemanticLogger {

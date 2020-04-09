@@ -26,13 +26,11 @@ trait SLF4JLogger
     extends SLF4JLoggerAPI[SLF4JLoggerPredicate, SLF4JLoggerMethod]
     with MarkerMixin
     with SourceInfoMixin
+    with UnderlyingMixin
+    with OnConditionMixin
     with ParameterListMixin
     with PredicateMixin[SLF4JLoggerPredicate] {
   override type Self <: SLF4JLogger
-
-  def underlying: org.slf4j.Logger
-
-  def onCondition(test: => Boolean): SLF4JLogger
 }
 
 object SLF4JLogger {

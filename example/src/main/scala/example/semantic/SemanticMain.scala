@@ -16,16 +16,24 @@
 
 package example.semantic
 
+import java.time.LocalTime
+
 import com.tersesystems.blindsight.LoggerFactory
 import com.tersesystems.blindsight.semantic.SemanticLogger
 
 object SemanticMain {
 
   def main(args: Array[String]): Unit = {
+
     val userEventLogger: SemanticLogger[UserEvent] =
       LoggerFactory.getLogger(getClass).refine[UserEvent]
+
     userEventLogger.info(UserLoggedInEvent("steve", "127.0.0.1"))
     userEventLogger.info(UserLoggedOutEvent("steve", "timeout"))
+
+    userEventLogger.warn.when(LocalTime.now().isAfter(LocalTime.of(23, 0))) { log =>
+      log(UserIsUpLateEvent("will", "someone is WRONG on the internet"))
+    }
 
     val onlyLoggedInEventLogger: SemanticLogger[UserLoggedInEvent] =
       userEventLogger.refine[UserLoggedInEvent]

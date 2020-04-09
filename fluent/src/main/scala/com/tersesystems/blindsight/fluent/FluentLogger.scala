@@ -29,6 +29,8 @@ trait FluentLogger
     with PredicateMixin[SLF4JLoggerPredicate]
     with ParameterListMixin
     with MarkerMixin
+    with UnderlyingMixin
+    with OnConditionMixin
     with SourceInfoMixin {
   override type Self      = FluentLogger
   override type Method    = FluentLoggerMethod

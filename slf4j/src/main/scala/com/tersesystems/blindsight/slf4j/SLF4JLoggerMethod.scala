@@ -28,6 +28,8 @@ import sourcecode.{Enclosing, File, Line}
 trait SLF4JLoggerMethod {
   def level: Level
 
+  def when(condition: => Boolean)(block: SLF4JLoggerMethod => Unit): Unit
+
   def apply[M: ToMessage](
       instance: => M
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit
@@ -278,6 +280,11 @@ object SLF4JLoggerMethod {
       collateMarkers + marker
     }
 
+    override def when(condition: => Boolean)(block: SLF4JLoggerMethod => Unit): Unit = {
+      if (condition && executePredicate(collateMarkers.marker)) {
+        block(this)
+      }
+    }
   }
 
   class Conditional(
@@ -371,6 +378,12 @@ object SLF4JLoggerMethod {
     )(implicit line: Line, file: File, enclosing: Enclosing): Unit = if (test) {
       parameterList
         .markerMessageArgs(marker, implicitly[ToMessage[M]].toMessage(instance).toString, args)
+    }
+
+    override def when(condition: => Boolean)(block: SLF4JLoggerMethod => Unit): Unit = {
+      if (test && condition) {
+        block(this)
+      }
     }
   }
 }

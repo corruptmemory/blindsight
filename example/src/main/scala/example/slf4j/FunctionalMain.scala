@@ -23,6 +23,14 @@ object FunctionalMain {
   def main(args: Array[String]): Unit = {
     val logger = LoggerFactory.getLogger(getClass)
 
+    // Would like a causality tracking system generally for tracing (no instrumentation/weaving required)
+    // https://pythonspeed.com/articles/logging-for-scientific-computing/
+    // https://blog.acolyer.org/2015/10/13/pivot-tracing-dynamic-causal-monitoring-for-distributed-systems/
+    // http://www.erights.org/elang/tools/causeway/index.html
+    // https://www.hpl.hp.com/techreports/2009/HPL-2009-78.html
+    // https://www.youtube.com/watch?v=QeqcGa7HlBk
+    // https://web.archive.org/web/20160730075837/http://www.eros-os.org/pipermail/e-lang/2002-November/007811.html
+
     import cats.implicits._
     import treelog.LogTreeSyntaxWithoutAnnotations._
 

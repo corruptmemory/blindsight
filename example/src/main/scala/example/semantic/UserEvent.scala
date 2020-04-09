@@ -19,7 +19,7 @@ package example.semantic
 import com.tersesystems.blindsight.api._
 import com.tersesystems.blindsight.logstash.Implicits._
 
-trait UserEvent {
+sealed trait UserEvent {
   def name: String
 }
 
@@ -40,5 +40,15 @@ object UserLoggedOutEvent {
     Statement()
       .withMessage(instance.toString)
       .withArguments(Map("name" -> instance.name, "reason" -> instance.reason))
+  }
+}
+
+final case class UserIsUpLateEvent(name: String, excuse: String) extends UserEvent
+
+object UserIsUpLateEvent {
+  implicit val toStatement: ToStatement[UserIsUpLateEvent] = ToStatement { instance =>
+    Statement()
+      .withMessage(instance.toString)
+      .withArguments(Map("name" -> instance.name, "excuse" -> instance.excuse))
   }
 }

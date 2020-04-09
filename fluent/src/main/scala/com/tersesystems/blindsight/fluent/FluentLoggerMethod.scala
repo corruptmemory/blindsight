@@ -21,12 +21,16 @@ import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
 trait FluentLoggerMethod extends FluentAPI {
+
+  def when(condition: => Boolean)(block: FluentLoggerMethod => Unit): Unit
+
   def apply[T: ToStatement](
       instance: => T
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 }
 
 object FluentLoggerMethod {
+
   trait Builder extends FluentAPI {
     def log(): Unit
     def logWithPlaceholders(): Unit
@@ -35,7 +39,14 @@ object FluentLoggerMethod {
   class Impl(val level: Level, logger: FluentLogger) extends FluentLoggerMethod {
 
     protected val parameterList: ParameterList = logger.parameterList(level)
-    protected[fluent] def markerState: Markers = logger.markerState
+
+    def markerState: Markers = logger.markerState
+
+    def when(condition: => Boolean)(block: FluentLoggerMethod => Unit): Unit = {
+      if (condition && isEnabled(collateMarkers(logger.markerState))) {
+        block(this)
+      }
+    }
 
     final case class BuilderImpl(
         mkrs: Markers,
@@ -118,6 +129,12 @@ object FluentLoggerMethod {
 
   class Conditional(level: Level, test: => Boolean, logger: FluentLogger)
       extends FluentLoggerMethod.Impl(level, logger) {
+
+    override def when(condition: => Boolean)(block: FluentLoggerMethod => Unit): Unit = {
+      if (test && condition && isEnabled(collateMarkers(logger.markerState))) {
+        block(this)
+      }
+    }
 
     override def apply[T: ToStatement](
         instance: => T

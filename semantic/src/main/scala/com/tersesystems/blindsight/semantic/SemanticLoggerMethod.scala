@@ -20,17 +20,20 @@ import com.tersesystems.blindsight.api.{Markers, ParameterList, Statement, ToSta
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
 
-trait SemanticLoggerMethod[MessageType] {
+trait SemanticLoggerMethod[StatementType] {
   def level: Level
 
-  def apply[T <: MessageType: ToStatement](
+  def when(condition: => Boolean)(block: SemanticLoggerMethod[StatementType] => Unit): Unit
+
+  def apply[T <: StatementType: ToStatement](
+      instance: T
+  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
+
+  def apply[T <: StatementType: ToStatement](
       instance: T,
       t: Throwable
   )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 
-  def apply[T <: MessageType: ToStatement](
-      instance: T
-  )(implicit line: Line, file: File, enclosing: Enclosing): Unit
 }
 
 object SemanticLoggerMethod {
@@ -78,6 +81,13 @@ object SemanticLoggerMethod {
         parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
       }
     }
+
+    override def when(condition: => Boolean)(
+        block: SemanticLoggerMethod[StatementType] => Unit): Unit = {
+      if (condition && isEnabled(markerState)) {
+        block(this)
+      }
+    }
   }
 
   class Conditional[StatementType](
@@ -86,13 +96,20 @@ object SemanticLoggerMethod {
       logger: SemanticLogger[StatementType]
   ) extends SemanticLoggerMethod.Impl(level, logger) {
 
+    override def when(condition: => Boolean)(
+        block: SemanticLoggerMethod[StatementType] => Unit): Unit = {
+      if (test && condition && isEnabled(markerState)) {
+        block(this)
+      }
+    }
+
     override def apply[T <: StatementType: ToStatement](
         instance: T,
         t: Throwable
     )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val statement = implicitly[ToStatement[T]].toStatement(instance)
       val markers   = collateMarkers(statement.markers)
-      if (isEnabled(markers) && test) {
+      if (test && isEnabled(markers)) {
         parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
       }
     }
