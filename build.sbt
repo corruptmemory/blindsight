@@ -12,7 +12,6 @@ ThisBuild / startYear := Some(2020)
 ThisBuild / licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / headerLicense := None
 
-
 val disableDocs = Seq[Setting[_]](
   sources in (Compile, doc) := Seq.empty,
   publishArtifact in (Compile, packageDoc) := false
@@ -60,7 +59,7 @@ lazy val slf4j = (project in file("slf4j"))
     libraryDependencies += logstashLogbackEncoder   % Test,
     libraryDependencies += scalaTest                % Test
   )
-  .dependsOn(api, fixtures % "compile->compile;test->test")
+  .dependsOn(api, fixtures % Test)
 
 lazy val semantic = (project in file("semantic"))
   .settings(
@@ -71,7 +70,7 @@ lazy val semantic = (project in file("semantic"))
     libraryDependencies += scalaTest                % Test
   )
   .dependsOn(slf4j, api)
-  .dependsOn(fixtures % "compile->compile;test->test")
+  .dependsOn(fixtures % Test)
 
 lazy val fluent = (project in file("fluent"))
   .settings(
@@ -82,7 +81,7 @@ lazy val fluent = (project in file("fluent"))
     libraryDependencies += scalaTest                % Test
   )
   .dependsOn(slf4j, api)
-  .dependsOn(fixtures % "compile->compile;test->test")
+  .dependsOn(fixtures % Test)
 
 lazy val logstash = (project in file("logstash"))
   .settings(
@@ -103,8 +102,8 @@ lazy val logback = (project in file("logback"))
   .settings(
     name := "blindsight-logback",
     libraryDependencies += logbackClassic
-  ).dependsOn(all, fixtures, logstash)
-  .dependsOn(fixtures % "compile->compile;test->test")
+  ).dependsOn(all, logstash)
+  .dependsOn(fixtures % Test)
 
 lazy val example = (project in file("example"))
   .settings(
@@ -127,4 +126,5 @@ lazy val example = (project in file("example"))
 lazy val root = (project in file("."))
   .settings(
     name := "blindsight-root"
-  ).aggregate(docs, fixtures, api, slf4j, semantic, fluent, logstash, all, logback, example)
+  ).settings(disableDocs).settings(disablePublishing)
+  .aggregate(docs, fixtures, api, slf4j, semantic, fluent, logstash, all, logback, example)
