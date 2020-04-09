@@ -67,8 +67,9 @@ object FluentLogger {
     override def error: Method             = new FluentLoggerMethod.Impl(ERROR, this)
 
     override def parameterList(level: Level): ParameterList = logger.parameterList(level)
-    override def predicate(level: Level): Predicate         = logger.predicate(level)
-    override def markers: Markers                       = logger.markers
+    override def predicate(level: Level): Predicate = logger.predicate(level)
+
+    override def markers: Markers = logger.markers
 
     override def sourceInfoMarker(
         level: Level,

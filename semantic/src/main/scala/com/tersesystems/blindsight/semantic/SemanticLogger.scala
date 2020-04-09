@@ -27,9 +27,8 @@ import sourcecode.{Enclosing, File, Line}
  */
 trait SemanticLogger[StatementType]
     extends SemanticLoggerAPI[StatementType, SLF4JLoggerPredicate, SemanticLoggerMethod]
-    with SemanticMarkerMixin[StatementType]
-    with SemanticRefineMixin[StatementType]
- {
+      with SemanticMarkerMixin[StatementType]
+      with SemanticRefineMixin[StatementType] {
   type Self[T] = SemanticLogger[T]
 
   def onCondition(test: => Boolean): Self[StatementType]
@@ -116,7 +115,10 @@ object SemanticLogger {
     override type Predicate = SLF4JLoggerPredicate
 
     override def marker[T: ToMarkers](markerInstance: T): Self[StatementType] = {
-      new Conditional(test, logger.marker(markerInstance).asInstanceOf[ExtendedSemanticLogger[StatementType]])
+      new Conditional(
+        test,
+        logger.marker(markerInstance).asInstanceOf[ExtendedSemanticLogger[StatementType]]
+      )
     }
 
     override def refine[T <: StatementType: ToStatement]: Self[T] = {

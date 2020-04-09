@@ -72,18 +72,19 @@ object SemanticLoggerMethod {
     }
 
     override def apply[T <: StatementType: ToStatement](
-        instance: T,
-        t: Throwable
-    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+                                                         instance: T,
+                                                         t: Throwable
+                                                       )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val statement = implicitly[ToStatement[T]].toStatement(instance)
-      val markers   = collateMarkers(statement.markers)
+      val markers = collateMarkers(statement.markers)
       if (isEnabled(markers)) {
         parameterList.executeStatement(statement.withMarkers(markers).withThrowable(t))
       }
     }
 
-    override def when(condition: => Boolean)(
-        block: SemanticLoggerMethod[StatementType] => Unit): Unit = {
+    override def when(
+                       condition: => Boolean
+                     )(block: SemanticLoggerMethod[StatementType] => Unit): Unit = {
       if (condition && isEnabled(markerState)) {
         block(this)
       }
@@ -96,17 +97,18 @@ object SemanticLoggerMethod {
       logger: ExtendedSemanticLogger[StatementType]
   ) extends SemanticLoggerMethod.Impl(level, logger) {
 
-    override def when(condition: => Boolean)(
-        block: SemanticLoggerMethod[StatementType] => Unit): Unit = {
+    override def when(
+                       condition: => Boolean
+                     )(block: SemanticLoggerMethod[StatementType] => Unit): Unit = {
       if (test && condition && isEnabled(markerState)) {
         block(this)
       }
     }
 
-    override def apply[T <: StatementType: ToStatement](
-        instance: T,
-        t: Throwable
-    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+    override def apply[T <: StatementType : ToStatement](
+                                                          instance: T,
+                                                          t: Throwable
+                                                        )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val statement = implicitly[ToStatement[T]].toStatement(instance)
       val markers   = collateMarkers(statement.markers)
       if (test && isEnabled(markers)) {

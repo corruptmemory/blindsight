@@ -90,18 +90,18 @@ object SLF4JLoggerMethod {
    * This class does the work of taking various input parameters, and determining what SLF4J method to call
    * with those parameters.
    */
-  class Impl(val level: Level, logger: ExtendedSLF4JLogger)
-      extends SLF4JLoggerMethod {
+  class Impl(val level: Level, logger: ExtendedSLF4JLogger) extends SLF4JLoggerMethod {
 
     @inline
     protected def markerState: Markers = logger.markers
 
     protected val parameterList: ParameterList = logger.parameterList(level)
+
     import parameterList._
 
     override def apply[M: ToMessage](
-        instance: => M
-    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
+                                      instance: => M
+                                    )(implicit line: Line, file: File, enclosing: Enclosing): Unit = {
       val markers = collateMarkers
       if (markers.nonEmpty) {
         if (executePredicate(markers.marker)) {

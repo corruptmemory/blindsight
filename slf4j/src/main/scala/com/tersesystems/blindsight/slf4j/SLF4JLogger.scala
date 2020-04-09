@@ -33,10 +33,10 @@ trait SLF4JLogger
 // Extend with traits that are needed for the implementation, but may not be useful
 // for end users
 trait ExtendedSLF4JLogger
-  extends SLF4JLogger
-    with SourceInfoMixin
-    with ParameterListMixin
-    with PredicateMixin[SLF4JLoggerPredicate]
+    extends SLF4JLogger
+      with SourceInfoMixin
+      with ParameterListMixin
+      with PredicateMixin[SLF4JLoggerPredicate]
 
 object SLF4JLogger {
 
@@ -96,12 +96,14 @@ object SLF4JLogger {
     override def onCondition(test: => Boolean): Self = new Conditional(test, this)
   }
 
-  class Conditional(test: => Boolean, protected val logger: ExtendedSLF4JLogger) extends ExtendedSLF4JLogger {
-    override type Self      = SLF4JLogger
-    override type Method    = SLF4JLoggerMethod
+  class Conditional(test: => Boolean, protected val logger: ExtendedSLF4JLogger)
+    extends ExtendedSLF4JLogger {
+    override type Self = SLF4JLogger
+    override type Method = SLF4JLoggerMethod
     override type Predicate = logger.Predicate
 
     override def onCondition(test2: => Boolean): Self = new Conditional(test && test2, logger)
+
     override def withMarker[T: ToMarkers](markerInstance: T): SLF4JLogger = {
       new Conditional(test, logger.withMarker(markerInstance).asInstanceOf[ExtendedSLF4JLogger])
     }
