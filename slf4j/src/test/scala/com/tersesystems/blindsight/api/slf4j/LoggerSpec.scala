@@ -27,17 +27,6 @@ import org.slf4j.{Logger, MarkerFactory}
 import sourcecode.{Enclosing, File, Line}
 
 class LoggerSpec extends AnyWordSpec with Matchers with OneContextPerTest {
-  //  def conditional(flag: FeatureFlag) =
-  //    if (logger.isDebugEnabled(flag)) {
-  //      logger.debug("debug with conditional!")
-  //    }
-  //
-  //  def markerArgs(payloadModel: PayloadModel): Unit = {
-  //    import net.logstash.logback.marker.Markers
-  //    val marker = Markers.append("foo", "bar")
-  //    logger.debug(marker, "Hello world, payload = {}", payloadModel: Any)
-  //  }
-
   protected class NoSourceSLF4JLogger(underlying: org.slf4j.Logger, markers: Markers = Markers.empty) extends Impl(underlying, markers) {
     override protected def self(underlying: Logger, markerState: Markers): SLF4JLogger = {
       new NoSourceSLF4JLogger(underlying, markerState)

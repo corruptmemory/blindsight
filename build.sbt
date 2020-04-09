@@ -59,7 +59,7 @@ lazy val slf4j = (project in file("slf4j"))
     libraryDependencies += logstashLogbackEncoder   % Test,
     libraryDependencies += scalaTest                % Test
   )
-  .dependsOn(api, fixtures % Test)
+  .dependsOn(api, fixtures % "test->test")
 
 lazy val semantic = (project in file("semantic"))
   .settings(
@@ -70,7 +70,7 @@ lazy val semantic = (project in file("semantic"))
     libraryDependencies += scalaTest                % Test
   )
   .dependsOn(slf4j, api)
-  .dependsOn(fixtures % Test)
+  .dependsOn(fixtures % "test->test")
 
 lazy val fluent = (project in file("fluent"))
   .settings(
@@ -81,7 +81,7 @@ lazy val fluent = (project in file("fluent"))
     libraryDependencies += scalaTest                % Test
   )
   .dependsOn(slf4j, api)
-  .dependsOn(fixtures % Test)
+  .dependsOn(fixtures % "test->test")
 
 lazy val logstash = (project in file("logstash"))
   .settings(
@@ -103,7 +103,7 @@ lazy val logback = (project in file("logback"))
     name := "blindsight-logback",
     libraryDependencies += logbackClassic
   ).dependsOn(all, logstash)
-  .dependsOn(fixtures % Test)
+  .dependsOn(fixtures % "test->test")
 
 lazy val example = (project in file("example"))
   .settings(
