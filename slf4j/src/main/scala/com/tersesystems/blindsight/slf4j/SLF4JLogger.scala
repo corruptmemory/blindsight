@@ -30,13 +30,14 @@ trait SLF4JLogger
   override type Self <: SLF4JLogger
 }
 
-// Extend with traits that are needed for the implementation, but may not be useful
-// for end users
+/** extended service level interface */
 trait ExtendedSLF4JLogger
-    extends SLF4JLogger
-      with SourceInfoMixin
-      with ParameterListMixin
-      with PredicateMixin[SLF4JLoggerPredicate]
+  extends SLF4JLogger
+    with SourceInfoMixin
+    with ParameterListMixin
+    with PredicateMixin[SLF4JLoggerPredicate] {
+  def method(level: Level): SLF4JLoggerMethod
+}
 
 object SLF4JLogger {
 
@@ -64,7 +65,7 @@ object SLF4JLogger {
       isTraceEnabled
     )
 
-    def method(level: Level): Method = methods(level.ordinal())
+    override def method(level: Level): Method = methods(level.ordinal())
 
     override def predicate(level: Level): Predicate = predicates(level.ordinal())
 
@@ -126,18 +127,21 @@ object SLF4JLogger {
     override def markers: Markers = logger.markers
 
     override def sourceInfoMarker(
-        level: Level,
-        line: Line,
-        file: File,
-        enclosing: Enclosing
-    ): Markers = {
+                                   level: Level,
+                                   line: Line,
+                                   file: File,
+                                   enclosing: Enclosing
+                                 ): Markers = {
       logger.sourceInfoMarker(level, line, file, enclosing)
     }
 
-    override def parameterList(level: Level): ParameterList    = logger.parameterList(level)
+    override def parameterList(level: Level): ParameterList = logger.parameterList(level)
+
     override def predicate(level: Level): SLF4JLoggerPredicate = logger.predicate(level)
 
     override def underlying: Logger = logger.underlying
+
+    override def method(level: Level): SLF4JLoggerMethod = logger.method(level)
   }
 
 }

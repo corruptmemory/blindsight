@@ -53,11 +53,11 @@ class FlowLogger(protected val logger: ExtendedSLF4JLogger)
   }
 
   override def sourceInfoMarker(
-      level: Level,
-      line: Line,
-      file: File,
-      enclosing: Enclosing
-  ): Markers = Markers.empty
+                                 level: Level,
+                                 line: Line,
+                                 file: File,
+                                 enclosing: Enclosing
+                               ): Markers = Markers.empty
 
   override def withMarker[T: ToMarkers](markerInstance: T) =
     new FlowLogger(logger.withMarker(markerInstance).asInstanceOf[ExtendedSLF4JLogger])
@@ -65,6 +65,8 @@ class FlowLogger(protected val logger: ExtendedSLF4JLogger)
   override def markers: Markers = logger.markers
 
   override def parameterList(level: Level): ParameterList = logger.parameterList(level)
+
+  override def method(level: Level): SLF4JLoggerMethod = logger.method(level)
 
   override def predicate(level: Level): SLF4JLoggerPredicate = logger.predicate(level)
 

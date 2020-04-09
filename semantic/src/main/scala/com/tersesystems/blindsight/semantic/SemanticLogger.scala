@@ -16,8 +16,8 @@
 
 package com.tersesystems.blindsight.semantic
 
+import com.tersesystems.blindsight.api._
 import com.tersesystems.blindsight.api.mixins._
-import com.tersesystems.blindsight.api.{Markers, ParameterList, ToMarkers, ToStatement}
 import com.tersesystems.blindsight.slf4j.{ExtendedSLF4JLogger, SLF4JLoggerPredicate}
 import org.slf4j.event.Level
 import sourcecode.{Enclosing, File, Line}
@@ -160,11 +160,10 @@ object SemanticLogger {
       logger.sourceInfoMarker(level, line, file, enclosing)
     }
 
-    override def parameterList(level: Level): ParameterList = logger.parameterList(level)
-
     override def predicate(level: Level): SLF4JLoggerPredicate = logger.predicate(level)
 
     override def underlying: org.slf4j.Logger = logger.underlying
 
+    override def parameterList(level: Level): ParameterList = logger.parameterList(level)
   }
 }
