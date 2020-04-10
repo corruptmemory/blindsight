@@ -83,27 +83,32 @@ lazy val fluent = (project in file("fluent"))
   .dependsOn(slf4j, api)
   .dependsOn(fixtures % "test->test")
 
-lazy val logstash = (project in file("logstash"))
-  .settings(
-    name := "blindsight-logstash",
-    libraryDependencies += jacksonModuleScala,
-    libraryDependencies += logbackClassic,
-    libraryDependencies += logstashLogbackEncoder
-  )
-  .dependsOn(api)
-
 // API that provides a logger with everything
 lazy val all = (project in file("all")).settings(
   name := "blindsight"
 ).dependsOn(api, slf4j, semantic, fluent)
 
-// serviceloader implementation using logstash plugin
+// serviceloader implementation with logback dependencies
 lazy val logback = (project in file("logback"))
   .settings(
     name := "blindsight-logback",
     libraryDependencies += logbackClassic
-  ).dependsOn(all, logstash)
-  .dependsOn(fixtures % "test->test")
+  ).dependsOn(all)
+
+lazy val logstash = (project in file("logstash"))
+  .settings(
+    name := "blindsight-logstash",
+    libraryDependencies += jacksonModuleScala,
+    libraryDependencies += logstashLogbackEncoder
+  )
+  .dependsOn(logback, fixtures % "test->test")
+
+// serviceloader implementation with log4j2 dependencies
+lazy val log4j2 = (project in file("log4j2"))
+  .settings(
+    name := "blindsight-log4j2",
+    libraryDependencies += "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.13.1"
+  ).dependsOn(all)
 
 lazy val example = (project in file("example"))
   .settings(
@@ -121,10 +126,10 @@ lazy val example = (project in file("example"))
     libraryDependencies += logbackUniqueId,
     libraryDependencies += logbackTracing,
   )
-  .dependsOn(logback).settings(disablePublishing).settings(disableDocs)
+  .dependsOn(logstash).settings(disablePublishing).settings(disableDocs)
 
 lazy val root = (project in file("."))
   .settings(
     name := "blindsight-root"
   ).settings(disableDocs).settings(disablePublishing)
-  .aggregate(docs, fixtures, api, slf4j, semantic, fluent, logstash, all, logback, example)
+  .aggregate(docs, fixtures, api, slf4j, semantic, fluent, logstash, all, logback, log4j2, example)

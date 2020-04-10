@@ -19,32 +19,61 @@ package com.tersesystems.blindsight
 import com.tersesystems.blindsight.api._
 import com.tersesystems.blindsight.fluent.FluentLogger
 import com.tersesystems.blindsight.semantic.SemanticLogger
-import com.tersesystems.blindsight.slf4j.SLF4JLogger
+import com.tersesystems.blindsight.slf4j.{SLF4JLogger, _}
+import org.slf4j.event.Level
+import sourcecode.{Enclosing, File, Line}
 
 trait Logger extends SLF4JLogger {
   def fluent: FluentLogger
+
   def refine[MessageType]: SemanticLogger[MessageType]
 }
 
-trait LoggerFactory {
-  def getLogger[T: LoggerResolver](instance: T): Logger
-}
+object Logger {
 
-object LoggerFactory {
-  import java.util.ServiceLoader
-  private val loggerFactoryLoader = ServiceLoader.load(classOf[LoggerFactory])
+  class Impl(protected val logger: ExtendedSLF4JLogger)
+    extends Logger
+      with SLF4JLoggerAPI.Proxy[SLF4JLoggerPredicate, SLF4JLoggerMethod] {
+    override type Parent = SLF4JLogger
+    override type Self = Logger
 
-  private lazy val loggerFactory: LoggerFactory = {
-    import javax.management.ServiceNotFoundException
-
-    import scala.collection.JavaConverters._
-
-    loggerFactoryLoader.iterator().asScala.find(_ != null).getOrElse {
-      throw new ServiceNotFoundException("No logger factory found!")
+    override def fluent: FluentLogger = {
+      new FluentLogger.Impl(logger)
     }
+
+    override def refine[MessageType]: SemanticLogger[MessageType] = {
+      new SemanticLogger.Impl[MessageType](logger)
+    }
+
+    override def onCondition(test: => Boolean): Self = {
+      new Impl(logger.onCondition(test).asInstanceOf[ExtendedSLF4JLogger])
+    }
+
+    override def withMarker[T: ToMarkers](markerInstance: T): Self =
+      new Impl(logger.withMarker(markerInstance).asInstanceOf[ExtendedSLF4JLogger])
+
+    override def markers: Markers = logger.markers
+
+    override def underlying: org.slf4j.Logger = logger.underlying
   }
 
-  def getLogger[T: LoggerResolver](instance: => T): Logger = {
-    loggerFactory.getLogger(instance)
+  class SLF4J(underlying: org.slf4j.Logger, markers: Markers)
+    extends SLF4JLogger.Impl(underlying, markers) {
+
+    override def onCondition(test: => Boolean): Self = {
+      new SLF4JLogger.Conditional(test, this)
+    }
+
+    override def withMarker[T: ToMarkers](markerInst: T): Self = {
+      val markers = implicitly[ToMarkers[T]].toMarkers(markerInst)
+      self(underlying, markers ++ markers)
+    }
+
+    override protected def self(underlying: org.slf4j.Logger, markerState: Markers): SLF4JLogger = {
+      new SLF4J(underlying, markerState)
+    }
+
+    override def sourceInfoMarker(level: Level, line: Line, file: File, enclosing: Enclosing): Markers = Markers.empty
   }
+
 }

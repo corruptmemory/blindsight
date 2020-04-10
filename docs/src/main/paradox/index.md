@@ -8,15 +8,27 @@
 
 # Blindsight
 
-Blindsight is a Scala logging API that allows for fluent logging, semantic logging, and context aware logging.
+Blindsight is a Scala logging API that allows for fluent logging, semantic logging, and context aware logging.  It is heavily informed by the [blog posts at tersesystems.com](https://tersesystems.com/category/logging/) and the [diagnostic logging showcase](https://github.com/tersesystems/terse-logback-showcase).
 
 The name is taken from Peter Watts' excellent first contact novel, [Blindsight](https://en.wikipedia.org/wiki/Blindsight_\(Watts_novel\)).
 
-## Requirements
+## Principles
 
-Blindsight is based around SLF4J.  It does not configure or constrain SLF4J in any way, and is designed to defer layout decisions to the backend logging framework, so you can write the same logging event out to a text file, console, to a database, and to JSON on the backend.  
+Blindsight has some organizing principles that inform the design.
 
-Having said that, the default assumption in the examples is that you are using [logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder) and [Terse Logback](https://tersesystems.github.io/terse-logback/) on the backend, and are roughly familiar with the [blog posts at tersesystems.com](https://tersesystems.com/category/logging/) and the [diagnostic logging showcase](https://github.com/tersesystems/terse-logback-showcase).
+* Loggers depend directly and solely on the SLF4J API.
+* Loggers are instantiated through logger factories backed by service loaders.
+* Easy access to the underlying SLF4J logger.
+* Type class based operation, ideally without explicit imports.
+* Extensible implementations.
+
+Likewise, there are things that Blindsight eschews:
+
+* No effects. 
+* No "magic" implicit conversions.
+* No constraints or configuration on SLF4J implementation.
+* No FP library requirements; no need for scalaz, cats, zio etc.
+* No formatting on the front end; messages should not contain JSON/XML.
 
 ## Overview
 
